@@ -5,6 +5,6 @@ collection = chroma_client.get_or_create_collection(name="divorce_law")
 
 results = collection.query(
     query_texts=["남편의 부정행위"], # Chroma will embed this for you
-    n_results=1 # how many results to return
+    n_results=50 # how many results to return
 )
 print(results)

@@ -6,7 +6,10 @@ import re
 import os
 
 # 기존에 저장된 CSV 파일을 읽어옵니다.
-case_list = pd.read_csv('./law_cases.csv')
+print("1.파일읽기")
+case_list = pd.read_csv('./cases.csv')
+
+#컬럼
 contents = ['판시사항', '판결요지', '참조조문', '참조판례', '판례내용', '전문']
 
 # HTML 태그를 제거하는 함수입니다.
@@ -24,10 +27,12 @@ for i in trange(len(case_list)):
     url = "https://www.law.go.kr"
     link = case_list.loc[i]['판례상세링크'].replace('HTML', 'XML')
     url += link
-
+    print("url : ", url)
+    
     try:
         response = urlopen(url).read()
         xtree = ET.fromstring(response)
+        print("xtree :", xtree)
     except ET.ParseError as e:
         print(f"Error parsing XML for index {i}: {e}")
         print(f"URL: {url}")
@@ -44,6 +49,7 @@ for i in trange(len(case_list)):
     for content in contents:
         text = xtree.find(content).text if xtree.find(content) is not None else '내용없음'
         text = remove_tag(text)
+        print("111111111111111111", text)
         case_data[content] = text
 
     # 추출한 데이터를 리스트에 추가합니다.
