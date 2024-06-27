@@ -20,7 +20,7 @@ const Home: React.FC = () => {
     }
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/ask', {
+      const res = await fetch('http://localhost:8000/ask/ask', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ const Home: React.FC = () => {
   const handleGenerateWebtoon = async (prompt: string) => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/generate-webtoon', {
+      const res = await fetch('http://localhost:8000/ask/generate-webtoon', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
