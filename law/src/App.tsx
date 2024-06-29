@@ -21,17 +21,23 @@
 // export default App;
 
 import React from 'react';
+import { HelmetProvider, Helmet } from 'react-helmet-async';
 import Navbar from './components/inc/Navbar';
 import Footer from './components/inc/Footer';
 import AppRoutes from './routes';
 
 const App = () => {
   return (
-    <div>
-      <Navbar />
-      <AppRoutes />
-      <Footer />
-    </div>
+    <HelmetProvider>
+      <div>
+        <Helmet>
+          <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet" />
+        </Helmet>
+        <Navbar />
+        <AppRoutes />
+        <Footer />
+      </div>
+    </HelmetProvider>
   );
 };
 

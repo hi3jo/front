@@ -1,6 +1,9 @@
 import { createGlobalStyle } from 'styled-components';
+import reset from 'styled-reset';
 
 const GlobalStyles = createGlobalStyle`
+  ${reset};
+  
   *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -8,9 +11,11 @@ const GlobalStyles = createGlobalStyle`
   }
 
   body {
-    font-family: Arial, Helvetica, sans-serif;
-    line-height: 1.6;
-    background-color: #f0f0f0;
+    font-family: 'Jua', sans-serif;
+    margin-top: 80px;
+    padding: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 
   a {
@@ -22,6 +27,10 @@ const GlobalStyles = createGlobalStyle`
     list-style: none;
   }
 
+  button {
+    font-family: 'Jua', sans-serif; /* 버튼에도 폰트 스타일 적용 */
+  }
+
   /* 커스텀 스크롤바 */
   ::-webkit-scrollbar {
     width: 12px;
@@ -29,7 +38,7 @@ const GlobalStyles = createGlobalStyle`
 
   ::-webkit-scrollbar-track {
     background: #f1f1f1;
-    border-radius:10px;
+    border-radius: 10px;
   }
 
   ::-webkit-scrollbar-thumb {
