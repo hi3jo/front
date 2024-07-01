@@ -1,5 +1,0 @@
-{
-    "python.analysis.extraPaths": [
-        "./law/src/modules"
-    ]
-}
