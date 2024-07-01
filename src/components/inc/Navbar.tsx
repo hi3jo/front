@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { useAuth } from '../services/auth';
 
 const NavbarContainer = styled.nav`
   background: #fff;
@@ -69,6 +70,8 @@ const AuthLinks = styled.div`
 `
 
 const Navbar = () => {
+  const { isAuthenticated, user, logout } = useAuth();
+
   return (
     <NavbarContainer>
       <LeftContainer>
@@ -79,7 +82,14 @@ const Navbar = () => {
         </NavLinks>
       </LeftContainer>
       <AuthLinks>
-        <Link to="/login">로그인/가입</Link>
+        {isAuthenticated ? (
+          <>
+            <span>{user?.nickname}</span>
+            <StyledButton onClick={logout}>로그아웃</StyledButton>
+          </>
+        ) : (
+          <Link to="/login">로그인/가입</Link>
+        )}
       </AuthLinks>
     </NavbarContainer>
   );

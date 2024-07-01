@@ -381,9 +381,9 @@ const Slider = () => {
     {
       content: (
         <StyledContent>
-          2
+          3
           <Spacer />
-          2
+          3
         </StyledContent>
       ),
       contentStyles: css`
