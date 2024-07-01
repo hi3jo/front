@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import Slider from './Slider';
-import SectionTest from './SectionTest'
 import Section1 from './Section1';
 import Section2 from './Section2';
 import Section3 from './Section3';
@@ -14,7 +13,6 @@ const HomePage = () => {
   return (
     <HomeContainer>
       <Slider />
-      <SectionTest />
       <Section1 />
       <Section2 />
       <Section3 />
