@@ -29,12 +29,12 @@ const SlidesWrapper = styled.div<{ $translateX: number; $transition: string}>`
 `;
 
 const Slide = styled.div<{ $backgroundColor: string; $textColor: string }>`
+  position: relative;
   min-width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
   background: ${props => props.$backgroundColor};
   color: ${props => props.$textColor};
   padding: 1rem;
@@ -74,26 +74,10 @@ const Button = styled.button`
   padding: 0.5rem;
   font-size:1.7rem;
   color:grey;
-  transition: color 0.3s, opacity 0.3s;
+  transition: color 0.3s;
 
   &:hover {
     color: black;
-  }
-
-  @media (max-width: 1024px) {
-    opacity: 0.75;
-  }
-
-  @media (max-width: 768px) {
-    opacity: 0.5;
-  }
-
-  @media (max-width: 480px) {
-    opacity: 0.25;
-  }
-
-  @media (max-width: 320px) {
-    opacity: 0;
   }
 `;
 
@@ -147,8 +131,8 @@ const Slider = () => {
         </StyledContent>
       ),
       contentStyles: css`
-        margin-top:40px;
-        margin-left:-600px;
+        margin-top:10px;
+        margin-left: 30px;
         color: white;
         font-size: 2rem;
         font-weight:900;
@@ -157,6 +141,7 @@ const Slider = () => {
         @media (max-width: 768px) {
           margin: 0;
           text-align: center;
+          font-size: 1.2rem;
         }
       `,
       content2: (
@@ -167,8 +152,8 @@ const Slider = () => {
         </StyledContent>
       ),
       contentStyles2: css`
-        margin-top:30px;
-        margin-left:-730px;
+        margin-top: 30px;
+        margin-left: 30px;
         color: #C0C0C0;
         font-size: 1rem;
         font-weight:700;
@@ -176,29 +161,31 @@ const Slider = () => {
 
         @media (max-width: 768px) {
           display: none;
+          text-align: center;
+          font-size: 0.8rem;
         }
       `,
       buttonText: 'AI 이혼법률비서 갈림길',
       buttonStyles: css`
-        margin-left:-920px;
-        margin-top:-200px;
         background-color: #474747;
+        margin-left: 30px;
         color: #C0C0C0;
         font-size:0.73rem;
         font-weight:bold;
         border: none;
         border-radius:5px;
-        padding: 7px 10px
+        width: 130px;
+        height: 30px;
 
         @media (max-width: 768px) {
-          margin-left: 0;
-          margin-top: 20px;
+          margin: 10px auto;
+          font-size: 0.9rem;
         }
       `,
       buttonText2: '챗봇 체험 바로가기',
       buttonStyles2: css`
-        margin-left:-860px;
-        margin-top:200px;
+        margin-top:20px;
+        margin-left: 30px;
         background-color: #9A9A9A;
         color: white;
         font-size:1.2rem;
@@ -207,42 +194,53 @@ const Slider = () => {
         border-radius:5px;
         padding: 12px 15px;
         cursor: pointer;
+        width: 180px;
+        height: 40px;
 
         @media (max-width: 768px) {
-          margin-left: 0;
-          margin-top: 20px;
+          margin: 10px auto;
+          font-size: 1rem;
         }
       `,
       imageUrl: '/images/slide1-1.PNG',
       imageUrl2: '/images/slide1-2.PNG',
       imageUrl3: '/images/slide1-3.PNG',
       imageStyles: css`
-        position:absolute;
-        margin-top:200px;
-        margin-left: 450px;
-        height: 110px;
+        position: absolute;
+        right: 10px;  /* 오른쪽 여백을 조정하여 이미지 위치 조정 */
+        top: 80px;
         z-index:900;
 
-        @media (max-width: 768px) {
-          display:none;
+        @media (max-width: 1100px) {
+          top: 150px;
+          right: 200px;
+          width: 350px;
+        }
+
+        @media (max-width: 1000px) {
+          display: none;
         }
       `,
       imageStyles2: css`
-        position:absolute;
-        margin-top:20px;
-        margin-left:350px;
-        height: 110px;
+        position: absolute;
+        right: 10px;  /* 오른쪽 여백을 조정하여 이미지 위치 조정 */
+        top: 160px;
         z-index:890;
 
-        @media (max-width: 768px) {
-          display:none;
+        @media (max-width: 1100px) {
+          top: 250px;
+          right: 200px;
+          width: 350px;
+        }
+
+        @media (max-width: 1000px) {
+          display: none;
         }
       `,
       imageStyles3: css`
-        position:absolute;
-        margin-top: -150px;
-        margin-left:850px;
-        height: auto;
+        position: absolute;
+        right: 10px;
+        top: 20px;
         z-index:910;
 
         @media (max-width: 768px) {
@@ -253,56 +251,260 @@ const Slider = () => {
       backgroundColor: '#2A2A2A',
     },
     {
-      content: '어케꾸밀까2',
+      content: (
+        <StyledContent>
+          2
+          <Spacer />
+          2
+        </StyledContent>
+      ),
       contentStyles: css`
-        color: black;
-        font-size: 1.2rem;
-        margin: 20px 0;
-        display: block;
+        margin-top:10px;
+        margin-left: 30px;
+        color: white;
+        font-size: 2rem;
+        font-weight:900;
+        text-align: left;
 
         @media (max-width: 768px) {
-          color: red;
+          margin: 0;
+          text-align: center;
           font-size: 1.2rem;
         }
       `,
-      buttonText: '버튼2',
-      textColor:'black',
-      backgroundColor: 'grey',
-    },
-    {
-      content: '어케꾸밀까3',
-      contentStyles: css`
-        color: white;
-        font-size: 1.2rem;
-        margin: 20px 0;
-        display: flex;
+      content2: (
+        <StyledContent>
+          2
+          <Spacer />
+          2
+        </StyledContent>
+      ),
+      contentStyles2: css`
+        margin-top: 30px;
+        margin-left: 30px;
+        color: #C0C0C0;
+        font-size: 1rem;
+        font-weight:700;
+        text-align: left;
 
         @media (max-width: 768px) {
-          color: orange;
+          display: none;
+          text-align: center;
+          font-size: 0.8rem;
+        }
+      `,
+      buttonText: 'AI 이혼법률비서 갈림길',
+      buttonStyles: css`
+        background-color: #474747;
+        margin-left: 30px;
+        color: #C0C0C0;
+        font-size:0.73rem;
+        font-weight:bold;
+        border: none;
+        border-radius:5px;
+        width: 130px;
+        height: 30px;
+
+        @media (max-width: 768px) {
+          margin: 10px auto;
           font-size: 0.9rem;
         }
       `,
-      buttonText: '버튼3',
-      buttonStyles: css`
-        background: blue;
+      buttonText2: '챗봇 체험 바로가기',
+      buttonStyles2: css`
+        margin-top:20px;
+        margin-left: 30px;
+        background-color: #9A9A9A;
         color: white;
+        font-size:1.2rem;
+        font-weight:bold;
         border: none;
-        padding: 0.5rem 1rem;
+        border-radius:5px;
+        padding: 12px 15px;
         cursor: pointer;
+        width: 180px;
+        height: 40px;
 
-        &:hover {
-          background: black;
-          color: white;
+        @media (max-width: 768px) {
+          margin: 10px auto;
+          font-size: 1rem;
         }
       `,
-      imageUrl: 'https://via.placeholder.com/200',
+      imageUrl: '/images/slide1-1.PNG',
+      imageUrl2: '/images/slide1-2.PNG',
+      imageUrl3: '/images/slide1-3.PNG',
       imageStyles: css`
-        max-width: 100%;
-        height: auto;
-        margin-top: 1rem;
+        position: absolute;
+        right: 10px;  /* 오른쪽 여백을 조정하여 이미지 위치 조정 */
+        top: 80px;
+        z-index:900;
+
+        @media (max-width: 1100px) {
+          top: 150px;
+          right: 200px;
+          width: 350px;
+        }
+
+        @media (max-width: 1000px) {
+          display: none;
+        }
       `,
-      textColor: 'black',
-      backgroundColor: 'mediumseagreen',
+      imageStyles2: css`
+        position: absolute;
+        right: 10px;  /* 오른쪽 여백을 조정하여 이미지 위치 조정 */
+        top: 160px;
+        z-index:890;
+
+        @media (max-width: 1100px) {
+          top: 250px;
+          right: 200px;
+          width: 350px;
+        }
+
+        @media (max-width: 1000px) {
+          display: none;
+        }
+      `,
+      imageStyles3: css`
+        position: absolute;
+        right: 10px;
+        top: 20px;
+        z-index:910;
+
+        @media (max-width: 768px) {
+          display: none;
+        }
+      `,
+      textColor: 'white',
+      backgroundColor: '#2A2A2A',
+    },
+    {
+      content: (
+        <StyledContent>
+          2
+          <Spacer />
+          2
+        </StyledContent>
+      ),
+      contentStyles: css`
+        margin-top:10px;
+        margin-left: 30px;
+        color: white;
+        font-size: 2rem;
+        font-weight:900;
+        text-align: left;
+
+        @media (max-width: 768px) {
+          margin: 0;
+          text-align: center;
+          font-size: 1.2rem;
+        }
+      `,
+      content2: (
+        <StyledContent>
+          3
+          <Spacer />
+          3
+        </StyledContent>
+      ),
+      contentStyles2: css`
+        margin-top: 30px;
+        margin-left: 30px;
+        color: #C0C0C0;
+        font-size: 1rem;
+        font-weight:700;
+        text-align: left;
+
+        @media (max-width: 768px) {
+          display: none;
+          text-align: center;
+          font-size: 0.8rem;
+        }
+      `,
+      buttonText: 'AI 이혼법률비서 갈림길',
+      buttonStyles: css`
+        background-color: #474747;
+        margin-left: 30px;
+        color: #C0C0C0;
+        font-size:0.73rem;
+        font-weight:bold;
+        border: none;
+        border-radius:5px;
+        width: 130px;
+        height: 30px;
+
+        @media (max-width: 768px) {
+          margin: 10px auto;
+          font-size: 0.9rem;
+        }
+      `,
+      buttonText2: '챗봇 체험 바로가기',
+      buttonStyles2: css`
+        margin-top:20px;
+        margin-left: 30px;
+        background-color: #9A9A9A;
+        color: white;
+        font-size:1.2rem;
+        font-weight:bold;
+        border: none;
+        border-radius:5px;
+        padding: 12px 15px;
+        cursor: pointer;
+        width: 180px;
+        height: 40px;
+
+        @media (max-width: 768px) {
+          margin: 10px auto;
+          font-size: 1rem;
+        }
+      `,
+      imageUrl: '/images/slide1-1.PNG',
+      imageUrl2: '/images/slide1-2.PNG',
+      imageUrl3: '/images/slide1-3.PNG',
+      imageStyles: css`
+        position: absolute;
+        right: 10px;
+        top: 80px;
+        z-index:900;
+
+        @media (max-width: 1100px) {
+          top: 150px;
+          right: 200px;
+          width: 350px;
+        }
+
+        @media (max-width: 1000px) {
+          display: none;
+        }
+      `,
+      imageStyles2: css`
+        position: absolute;
+        right: 10px;
+        top: 160px;
+        z-index:890;
+
+        @media (max-width: 1100px) {
+          top: 250px;
+          right: 200px;
+          width: 350px;
+        }
+
+        @media (max-width: 1000px) {
+          display: none;
+        }
+      `,
+      imageStyles3: css`
+        position: absolute;
+        right: 10px;
+        top: 20px;
+        z-index:910;
+
+        @media (max-width: 768px) {
+          display: none;
+        }
+      `,
+      textColor: 'white',
+      backgroundColor: '#2A2A2A',
     },
   ];
 
@@ -357,12 +559,12 @@ const Slider = () => {
         >
         {extendedSlides.map((slide, index) => (
             <Slide key={index} $backgroundColor={slide.backgroundColor} $textColor={slide.textColor}>
+              {slide.buttonText && slide.buttonStyles && (
+                <SlideButton $customStyles={slide.buttonStyles}>{slide.buttonText}</SlideButton>
+              )}
               <SlideContent $customStyles={slide.contentStyles}>{slide.content}</SlideContent>
               {slide.content2 && slide.contentStyles2 && (
                 <SlideContent $customStyles={slide.contentStyles2}>{slide.content2}</SlideContent>
-              )}
-              {slide.buttonText && slide.buttonStyles && (
-                <SlideButton $customStyles={slide.buttonStyles}>{slide.buttonText}</SlideButton>
               )}
               {slide.buttonText2 && slide.buttonStyles2 && (
                 <SlideLinkButton to="/chatbot" $customStyles={slide.buttonStyles2}>{slide.buttonText2}</SlideLinkButton>
