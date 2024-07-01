@@ -62,11 +62,20 @@ const StyledButton = styled.button`
   }
 `
 
+const Nickname = styled.div`
+display: flex;
+padding:1rem;
+font-size:1.2rem;
+cursor: pointer;
+color: blue;
+`
+
 const AuthLinks = styled.div`
   display: flex;
   gap: 1rem;
   padding:1rem;
   font-size:0.8rem;
+  cursor: pointer;
 `
 
 const Navbar = () => {
@@ -84,8 +93,8 @@ const Navbar = () => {
       <AuthLinks>
         {isAuthenticated ? (
           <>
-            <span>{user?.nickname}</span>
-            <StyledButton onClick={logout}>로그아웃</StyledButton>
+            <Nickname>{user?.nickname}</Nickname>
+            <AuthLinks onClick={logout}>로그아웃</AuthLinks>
           </>
         ) : (
           <Link to="/login">로그인/가입</Link>

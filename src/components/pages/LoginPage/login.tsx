@@ -7,47 +7,59 @@ const LoginContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
+  height: 90vh;
   background-color: #f5f5f5;
+  overflow: hidden;
 `;
 
 const LoginForm = styled.form`
   display: flex;
+  margin-top: 70px;
+  font-size: 1.8rem;
+  width: 26rem;
   flex-direction: column;
   gap: 1rem;
   padding: 2rem;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  align-items:center;
 `;
 
 const Input = styled.input`
-  padding: 0.5rem;
+  padding: 1.3rem;
+  width:22rem;
+  height:3.5rem;
+  font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 4px;
 `;
 
 const Button = styled.button`
-  padding: 0.5rem;
+  margin-top:1.2rem;
   border: none;
+  font-size: 1rem;
+  width: 22rem;
+  height: 3.5rem;
   border-radius: 4px;
-  background-color: #007bff;
+  background-color: #20B2AA;
   color: white;
   cursor: pointer;
   &:hover {
-    background-color: #0056b3;
+    background-color: #008080;
   }
 `;
 
 const ErrorText = styled.p`
   color: red;
+  font-size:1rem;
 `;
 
 const RegisterLink = styled(Link)`
-  margin-top: 1rem;
-  color: #007bff;
+  margin-top:2rem;
+  color: #c0c0c0;
   text-decoration: none;
+  font-size:1rem;
   &:hover {
     text-decoration: underline;
   }
@@ -56,8 +68,6 @@ const RegisterLink = styled(Link)`
 const AuthLinks = styled.div`
   display: flex;
   gap: 1rem;
-  padding:1rem;
-  font-size:0.8rem;
 `
 
 const LoginPage = () => {
@@ -81,16 +91,17 @@ const LoginPage = () => {
 
   return (
     <LoginContainer>
-      <h2>로그인</h2>
       <LoginForm onSubmit={handleSubmit}>
-        <Input type="text" name="userid" placeholder="User ID" onChange={handleChange} />
-        <Input type="password" name="password" placeholder="Password" onChange={handleChange} />
-        <Button type="submit">Login</Button>
+        <h2>로그인</h2>
+        <Input type="text" name="userid" placeholder="아이디" onChange={handleChange} />
+        <Input type="password" name="password" placeholder="비밀번호" onChange={handleChange} />
+        {error && <ErrorText>{error}</ErrorText>}
+        <Button type="submit">로그인</Button>
+        <AuthLinks>
+          <RegisterLink to="/register">회원가입</RegisterLink>
+          <RegisterLink to="/register-lawyer">변호사회원가입</RegisterLink>
+        </AuthLinks>
       </LoginForm>
-      {error && <ErrorText>{error}</ErrorText>}
-      <AuthLinks>
-        <RegisterLink to="/register">회원가입</RegisterLink>
-      </AuthLinks>
     </LoginContainer>
   );
 };
