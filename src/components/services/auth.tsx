@@ -28,44 +28,29 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    if (storedUser && token) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        if (parsedUser && typeof parsedUser === 'object') {
-          setUser(parsedUser);
-          setIsAuthenticated(true);
-        } else {
-          throw new Error('Invalid user data');
-        }
-      } catch (error) {
-        console.error('Failed to parse user from localStorage:', error);
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-      }
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      setIsAuthenticated(true);
     }
   }, []);
 
   const login = async (credentials: { userid: string; password: string }) => {
     try {
       const response = await axios.post('http://localhost:8080/api/auth/login', credentials);
-      if (response.status === 200 && response.data.token) {
+      if (response.status === 200) {
         setIsAuthenticated(true);
-        setUser({ userid: credentials.userid, nickname: '' });  // Modify as per your user data structure
-        localStorage.setItem('user', JSON.stringify({ userid: credentials.userid, nickname: '' }));  // Modify as per your user data structure
-        localStorage.setItem('token', response.data.token);
+        setUser(response.data);
+        localStorage.setItem('user', JSON.stringify(response.data));
       } else {
         setIsAuthenticated(false);
         setUser(null);
         localStorage.removeItem('user');
-        localStorage.removeItem('token');
-        throw new Error('Invalid login response');
       }
     } catch (error) {
       setIsAuthenticated(false);
       setUser(null);
       localStorage.removeItem('user');
-      localStorage.removeItem('token');
       throw new Error('로그인 실패');
     }
   };
@@ -74,7 +59,6 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     setIsAuthenticated(false);
     setUser(null);
     localStorage.removeItem('user');
-    localStorage.removeItem('token');
   };
 
   return (

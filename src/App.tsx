@@ -1,6 +1,7 @@
 import React from 'react';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 import Navbar from './components/inc/Navbar';
+import Footer from './components/inc/Footer';
 import AppRoutes from './routes';
 import { AuthProvider } from './components/services/auth';
 
@@ -14,6 +15,7 @@ const App = () => {
           </Helmet>
           <Navbar />
           <AppRoutes />
+          <Footer />
         </div>
       </AuthProvider>
     </HelmetProvider>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../services/auth';
 import styled from 'styled-components';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const LoginContainer = styled.div`
   display: flex;
@@ -74,7 +74,6 @@ const LoginPage = () => {
   const { login } = useAuth();
   const [credentials, setCredentials] = useState({ userid: '', password: '' });
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -84,7 +83,7 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       await login(credentials);
-      navigate('/');
+      window.location.href = '/';
     } catch {
       setError('로그인 실패: 아이디 또는 비밀번호를 확인하세요.');
     }
