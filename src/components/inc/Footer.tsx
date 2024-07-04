@@ -6,10 +6,7 @@ const FooterContainer = styled.footer`
   color: #fff;
   text-align: center;
   padding: 1rem;
-  position: fixed;
-  bottom: 0;
   width: 100%;
-  z-index:1000;
 `;
 
 const Footer = () => {
