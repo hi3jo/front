@@ -1,65 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+
+interface CommentProps {
+  postId: number;
+  currentUser: string | null;
+}
 
 interface Comment {
   id: number;
   content: string;
   user: {
-    userId: string;
+    userid: string;
     nickname: string;
   };
 }
 
-const Comments: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+const Comments: React.FC<CommentProps> = ({ postId, currentUser }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [editCommentId, setEditCommentId] = useState<number | null>(null);
+  const [editCommentContent, setEditCommentContent] = useState<string>('');
 
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) throw new Error('No token found');
-        
-        const response = await axios.get(`http://localhost:8080/api/posts/${id}/comments`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await axios.get(`http://localhost:8080/api/comments/posts/${postId}`);
         setComments(response.data);
       } catch (error) {
         console.error('Failed to fetch comments:', error);
       }
     };
 
-    const fetchCurrentUser = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const response = await axios.get('http://localhost:8080/api/user/me', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          setCurrentUser(response.data.userId);
-        } catch (error) {
-          console.error('Failed to fetch current user:', error);
-        }
-      }
-    };
-
     fetchComments();
-    fetchCurrentUser();
-  }, [id]);
+  }, [postId]);
 
   const handleCreateComment = async () => {
     const token = localStorage.getItem('token');
     try {
-      if (!token) throw new Error('No token found');
-
-      const response = await axios.post(`http://localhost:8080/api/posts/${id}/comments`, {
+      const response = await axios.post(`http://localhost:8080/api/comments/posts/${postId}`, {
         content: newComment
       }, {
         headers: {
@@ -76,8 +54,6 @@ const Comments: React.FC = () => {
   const handleDeleteComment = async (commentId: number) => {
     const token = localStorage.getItem('token');
     try {
-      if (!token) throw new Error('No token found');
-
       await axios.delete(`http://localhost:8080/api/comments/${commentId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -89,13 +65,11 @@ const Comments: React.FC = () => {
     }
   };
 
-  const handleUpdateComment = async (commentId: number, updatedContent: string) => {
+  const handleUpdateComment = async (commentId: number) => {
     const token = localStorage.getItem('token');
     try {
-      if (!token) throw new Error('No token found');
-
       const response = await axios.put(`http://localhost:8080/api/comments/${commentId}`, {
-        content: updatedContent
+        content: editCommentContent
       }, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -104,6 +78,8 @@ const Comments: React.FC = () => {
       setComments(comments.map(comment => 
         comment.id === commentId ? { ...comment, content: response.data.content } : comment
       ));
+      setEditCommentId(null);
+      setEditCommentContent('');
     } catch (error) {
       console.error('Failed to update comment:', error);
     }
@@ -114,22 +90,39 @@ const Comments: React.FC = () => {
       <h2>Comments</h2>
       {comments.map(comment => (
         <div key={comment.id}>
-          <p>{comment.content}</p>
-          <p>작성자: {comment.user.nickname}</p>
-          {currentUser === comment.user.userId && (
+          {editCommentId === comment.id ? (
             <div>
-              <button onClick={() => handleUpdateComment(comment.id, 'Updated content')}>수정</button>
-              <button onClick={() => handleDeleteComment(comment.id)}>삭제</button>
+              <textarea
+                value={editCommentContent}
+                onChange={(e) => setEditCommentContent(e.target.value)}
+              />
+              <button onClick={() => handleUpdateComment(comment.id)}>저장</button>
+              <button onClick={() => setEditCommentId(null)}>취소</button>
+            </div>
+          ) : (
+            <div>
+              <p>{comment.content}</p>
+              <p>작성자: {comment.user.nickname}</p>
+              {currentUser === comment.user.userid && (
+                <div>
+                  <button onClick={() => { setEditCommentId(comment.id); setEditCommentContent(comment.content); }}>수정</button>
+                  <button onClick={() => handleDeleteComment(comment.id)}>삭제</button>
+                </div>
+              )}
             </div>
           )}
         </div>
       ))}
-      <textarea
-        value={newComment}
-        onChange={(e) => setNewComment(e.target.value)}
-        placeholder="댓글을 작성하세요..."
-      />
-      <button onClick={handleCreateComment}>댓글 작성</button>
+      {currentUser && (
+        <div>
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="댓글을 작성하세요..."
+          />
+          <button onClick={handleCreateComment}>댓글 작성</button>
+        </div>
+      )}
     </div>
   );
 };
