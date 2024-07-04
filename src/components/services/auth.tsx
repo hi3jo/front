@@ -51,8 +51,8 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       const response = await axios.post('http://localhost:8080/api/auth/login', credentials);
       if (response.status === 200 && response.data.token) {
         setIsAuthenticated(true);
-        setUser({ userid: credentials.userid, nickname: '' });  // Modify as per your user data structure
-        localStorage.setItem('user', JSON.stringify({ userid: credentials.userid, nickname: '' }));  // Modify as per your user data structure
+        setUser({ userid: credentials.userid, nickname: '' });
+        localStorage.setItem('user', JSON.stringify({ userid: credentials.userid, nickname: '' }));
         localStorage.setItem('token', response.data.token);
       } else {
         setIsAuthenticated(false);
