@@ -77,5 +77,5 @@ const PostDetail: React.FC = () => {
     </div>
   );
 };
-
+//*
 export default PostDetail;
