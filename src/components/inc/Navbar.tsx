@@ -87,7 +87,7 @@ const Navbar = () => {
         <CustomLink  to="/">갈림길</CustomLink>
         <NavLinks>
           <StyledButton onClick={() => window.location.href = "/chatbot"}>AI챗봇 시스템</StyledButton>
-          <StyledButton onClick={() => window.location.href = "/community"}>커뮤니티</StyledButton>
+          <StyledButton onClick={() => window.location.href = "/post"}>커뮤니티</StyledButton>
         </NavLinks>
       </LeftContainer>
       <AuthLinks>
