@@ -27,32 +27,40 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<{ userid: string; nickname: string } | null>(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    if (storedUser && token) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        if (parsedUser && typeof parsedUser === 'object') {
-          setUser(parsedUser);
+    const fetchUser = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const response = await axios.get('http://localhost:8080/api/user/me', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          setUser(response.data);
           setIsAuthenticated(true);
-        } else {
-          throw new Error('Invalid user data');
+        } catch (error) {
+          console.error('Failed to fetch user:', error);
+          localStorage.removeItem('user');
+          localStorage.removeItem('token');
         }
-      } catch (error) {
-        console.error('Failed to parse user from localStorage:', error);
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
       }
-    }
+    };
+    fetchUser();
   }, []);
 
   const login = async (credentials: { userid: string; password: string }) => {
     try {
       const response = await axios.post('http://localhost:8080/api/auth/login', credentials);
       if (response.status === 200 && response.data.token) {
+        const userResponse = await axios.get('http://localhost:8080/api/user/me', {
+          headers: {
+            'Authorization': `Bearer ${response.data.token}`
+          }
+        });
+        const userData = userResponse.data;
         setIsAuthenticated(true);
-        setUser({ userid: credentials.userid, nickname: '' });  // Modify as per your user data structure
-        localStorage.setItem('user', JSON.stringify({ userid: credentials.userid, nickname: '' }));  // Modify as per your user data structure
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('token', response.data.token);
       } else {
         setIsAuthenticated(false);
