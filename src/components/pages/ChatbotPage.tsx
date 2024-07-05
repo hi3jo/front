@@ -128,13 +128,59 @@ const ChatbotPage = () => {
     setQuestion(e.target.value);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  //1.비행기 모양의 질문 버튼 클릭
+  const handleSubmit = async(e: React.FormEvent) => {
+    
     e.preventDefault();
-    if (question.trim()) {
-      const aiResponse = "질문해 난 AI야.";
-      setChatHistory([...chatHistory, { user: question, ai: aiResponse }]);
-      setQuestion('');
+
+    //1.1.로컬스토리지에서 사용자 정보를 JSON 문자열로 가져온다.
+    const userJSON = localStorage.getItem('user');
+    let userId = null;
+    
+    // 1.2. userJSON이 null이 아닌지 확인합니다.
+    if (userJSON !== null){
+      
+      const userObject = JSON.parse(userJSON);          //JSON 문자열을 JavaScript 객체로 변환합니다.
+      userId = userObject.userid;
     }
+
+    // userid 값을 가져옵니다.
+    console.log("userId :", userId);
+    try {
+      
+      const res = await fetch(
+          'http://localhost:8000/api/asked'
+        , {
+              method  :   'POST'
+            , headers : { 'Content-Type': 'application/json'}
+            , body    : JSON.stringify(
+                                       { 
+                                           question : question
+                                         , userid   : userId
+                                       }
+                                      )
+          }
+      );
+      
+      const data = await res.json();
+      const aiResponse = data.answer
+      setChatHistory([...chatHistory, { user: question, ai: aiResponse }]);
+    } catch (error) {
+      
+      console.error('Error:', error);
+
+      // HTTPException 처리
+      if (error instanceof Error && error.message.includes('HTTP error! status: 400')) {
+        // 서버에서 400 상태 코드로 예외를 발생시킨 경우
+        alert('질문을 입력해주세요!'); // 사용자에게 알림을 띄웁니다.
+      } else {
+        // 기타 오류 처리
+        alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      }
+    }
+    
+    //질문란 리셋
+    setQuestion('');
   };
 
   useEffect(() => {
