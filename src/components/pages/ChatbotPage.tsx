@@ -128,10 +128,9 @@ const ChatbotPage = () => {
     setQuestion(e.target.value);
   };
 
-  //비행기 모양 질문 버튼 클릭
-  const handleSubmit = async(e: React.FormEvent) => {
-    
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
 
     try {
       
@@ -146,14 +145,13 @@ const ChatbotPage = () => {
       
       const data = await res.json();
       const aiResponse = data.answer
+
+    if (question.trim()) {
+      const aiResponse = "질문해 난 AI야.";
+
       setChatHistory([...chatHistory, { user: question, ai: aiResponse }]);
-    } catch (error) {
-      
-      console.error('Error:', error);
+      setQuestion('');
     }
-    
-    //질문란 리셋
-    setQuestion('');
   };
 
   useEffect(() => {
