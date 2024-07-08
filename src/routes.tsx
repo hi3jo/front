@@ -9,6 +9,7 @@ import Post from './components/pages/Post/PostList'
 import CreatePost from './components/pages/Post/CreatePost';
 import PostDetail from './components/pages/Post/PostDetails';
 import UpdatePost from './components/pages/Post/UpdatePost';
+import PopularPosts from './components/pages/Post/PopularPosts';
 
 const AppRoutes = () => {
   return (
@@ -20,6 +21,7 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/post" element={<Post />} />
       <Route path="/createpost" element={<CreatePost />} />
+      <Route path="/popularposts" element={<PopularPosts />} />
       <Route path="/posts/:id" element={<PostDetail />} />
       <Route path="/posts/update/:id" element={<UpdatePost />} />
     </Routes>
