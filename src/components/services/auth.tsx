@@ -3,7 +3,7 @@ import axios from 'axios';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: { userid: string; nickname: string } | null;
+  user: { id: string; nickname: string; role: string } | null;
   login: (credentials: { userid: string; password: string }) => Promise<void>;
   logout: () => void;
 }
@@ -24,28 +24,17 @@ interface AuthProviderProps {
 
 export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<{ userid: string; nickname: string } | null>(null);
+  const [user, setUser] = useState<{ id: string; nickname: string; role: string } | null>(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const response = await axios.get('http://localhost:8080/api/user/me', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          setUser(response.data);
-          setIsAuthenticated(true);
-        } catch (error) {
-          console.error('Failed to fetch user:', error);
-          localStorage.removeItem('user');
-          localStorage.removeItem('token');
-        }
-      }
-    };
-    fetchUser();
+    const id = localStorage.getItem('id');
+    const nickname = localStorage.getItem('nickname');
+    const role = localStorage.getItem('role');
+    const token = localStorage.getItem('token');
+    if (id && nickname && role && token) {
+      setUser({ id, nickname, role });
+      setIsAuthenticated(true);
+    }
   }, []);
 
   const login = async (credentials: { userid: string; password: string }) => {
@@ -59,20 +48,26 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
         });
         const userData = userResponse.data;
         setIsAuthenticated(true);
-        setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
+        setUser({ id: userData.id, nickname: userData.nickname, role: userData.role });
+        localStorage.setItem('id', userData.id);
+        localStorage.setItem('nickname', userData.nickname);
+        localStorage.setItem('role', userData.role);
         localStorage.setItem('token', response.data.token);
       } else {
         setIsAuthenticated(false);
         setUser(null);
-        localStorage.removeItem('user');
+        localStorage.removeItem('id');
+        localStorage.removeItem('nickname');
+        localStorage.removeItem('role');
         localStorage.removeItem('token');
         throw new Error('Invalid login response');
       }
     } catch (error) {
       setIsAuthenticated(false);
       setUser(null);
-      localStorage.removeItem('user');
+      localStorage.removeItem('id');
+      localStorage.removeItem('nickname');
+      localStorage.removeItem('role');
       localStorage.removeItem('token');
       throw new Error('로그인 실패');
     }
@@ -81,7 +76,9 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
-    localStorage.removeItem('user');
+    localStorage.removeItem('id');
+    localStorage.removeItem('nickname');
+    localStorage.removeItem('role');
     localStorage.removeItem('token');
   };
 
