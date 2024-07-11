@@ -106,14 +106,17 @@ const InputWrapper = styled.div`
   width: 100%;
 `;
 
-const InputField = styled.input`
+// textarea 스타일 컴포넌트 정의
+const InputField = styled.textarea`
   padding: 0.5rem 2.5rem 0.5rem 0.5rem;
   font-size: 1rem;
+  height: 83px; /* 초기 높이 설정 */
   width: 100%;
   border: none;
   outline: none;
   border-radius: 5px;
   border: 1px solid rgb(201, 201, 201);
+  resize: none; /* textarea 크기 조정 금지 */
 `;
 
 const IconButton = styled.button`
@@ -210,30 +213,28 @@ const ChatbotPage = () => {
   const [webtoonImage, setWebtoonImage] = useState('');
   const [modalShow, setModalShow] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setStory(e.target.value);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    
     e.preventDefault();
     setLoading(true);           // 로딩 시작
     try {
-      
       const res = await fetch(
         'http://localhost:8000/api/generate-webtoon',
         {
-            method: 'POST'
-          , headers: { 'Content-Type': 'application/json' }
-          , body: JSON.stringify({ story })
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ story })
         }
       );
 
       if (!res.ok) {
         if (res.status === 400) {
-            alert("오류: 유효하지 않은 입력입니다."); // 400 에러 시 알림
+          alert("오류: 유효하지 않은 입력입니다."); // 400 에러 시 알림
         } else {
-            alert("오류: 서버에 문제가 발생했습니다.");
+          alert("오류: 서버에 문제가 발생했습니다.");
         }
         setLoading(false);
         return;
@@ -303,10 +304,9 @@ const ChatbotPage = () => {
           <InputForm onSubmit={handleSubmit}>
             <InputWrapper>
               <InputField
-                type="text"
                 value={story}
                 onChange={handleInputChange}
-                placeholder="질문 해봐"
+                placeholder="사연을 입력해주세요."
               />
               <IconButton type="submit">
                 <FaPaperPlane />
@@ -314,13 +314,13 @@ const ChatbotPage = () => {
             </InputWrapper>
           </InputForm>
         </ChatbotContainer>
-    </Container>
-    <Modal $show={modalShow}>
-      <ModalContent>
-        <CloseButton onClick={() => setModalShow(false)}>&times;</CloseButton>
-        <img src={webtoonImage} alt="웹툰" style={{ width: '100%' }} />
-      </ModalContent>
-    </Modal>
+      </Container>
+      <Modal $show={modalShow}>
+        <ModalContent>
+          <CloseButton onClick={() => setModalShow(false)}>&times;</CloseButton>
+          <img src={webtoonImage} alt="웹툰" style={{ width: '100%' }} />
+        </ModalContent>
+      </Modal>
     </>
   );
 };
