@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../../services/auth';
 import styled from 'styled-components';
+import { useAuth } from '../../services/auth';
 
 interface Post {
   id: number;
@@ -87,23 +87,25 @@ const Button = styled.button`
 
 const Input = styled.input`
   padding: 10px;
+  margin: 0 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
 `;
 
 const Select = styled.select`
   padding: 10px;
+  margin: 0 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
 `;
 
-const PostList: React.FC = () => {
+const PopularPosts: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [pageList, setPageList] = useState<number[]>([]);
   const [curPage, setCurPage] = useState(1);
-  const [search, setSearch] = useState({ sk: '', sv: '' });
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
+  const [search, setSearch] = useState({ sk: '', sv: '' });
 
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -119,7 +121,7 @@ const PostList: React.FC = () => {
         .map(([key, value]) => `${key}=${value}`)
         .join('&');
 
-      const response = await axios.get<PostsResponse>(`http://localhost:8080/api/posts/pages?${queryString}`);
+      const response = await axios.get<PostsResponse>(`http://localhost:8080/api/posts/popular?${queryString}`);
       setPosts(response.data.posts);
       setTotalPages(response.data.totalPages);
       setTotalItems(response.data.totalItems);
@@ -183,7 +185,6 @@ const PostList: React.FC = () => {
   return (
     <PostListContainer>
       <Button onClick={handleCreatePostClick}>글쓰기</Button>
-      <Button><Link to={`/popularposts`}>좋아요 30 이상글</Link></Button>
       <ul>
         {posts.map((post, index) => (
           <PostItem key={post.id}>
@@ -239,4 +240,4 @@ const PostList: React.FC = () => {
   );
 };
 
-export default PostList;
+export default PopularPosts;

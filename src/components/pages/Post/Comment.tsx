@@ -6,13 +6,15 @@ interface CommentProps {
   currentUser: string | null;
 }
 
+interface User {
+  userid: string;
+  nickname: string;
+}
+
 interface Comment {
   id: number;
   content: string;
-  user: {
-    userid: string;
-    nickname: string;
-  };
+  user: User;
 }
 
 const Comments: React.FC<CommentProps> = ({ postId, currentUser }) => {
@@ -36,14 +38,17 @@ const Comments: React.FC<CommentProps> = ({ postId, currentUser }) => {
 
   const handleCreateComment = async () => {
     const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found');
+      return;
+    }
+
     try {
-      const response = await axios.post(`http://localhost:8080/api/comments/posts/${postId}`, {
-        content: newComment
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await axios.post(
+        `http://localhost:8080/api/comments/posts/${postId}`, 
+        { content: newComment }, 
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
       setComments([...comments, response.data]);
       setNewComment('');
     } catch (error) {
@@ -53,11 +58,14 @@ const Comments: React.FC<CommentProps> = ({ postId, currentUser }) => {
 
   const handleDeleteComment = async (commentId: number) => {
     const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found');
+      return;
+    }
+
     try {
       await axios.delete(`http://localhost:8080/api/comments/${commentId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       setComments(comments.filter(comment => comment.id !== commentId));
     } catch (error) {
@@ -67,14 +75,17 @@ const Comments: React.FC<CommentProps> = ({ postId, currentUser }) => {
 
   const handleUpdateComment = async (commentId: number) => {
     const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found');
+      return;
+    }
+
     try {
-      const response = await axios.put(`http://localhost:8080/api/comments/${commentId}`, {
-        content: editCommentContent
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await axios.put(
+        `http://localhost:8080/api/comments/${commentId}`, 
+        { content: editCommentContent }, 
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
       setComments(comments.map(comment => 
         comment.id === commentId ? { ...comment, content: response.data.content } : comment
       ));
@@ -87,7 +98,7 @@ const Comments: React.FC<CommentProps> = ({ postId, currentUser }) => {
 
   return (
     <div>
-      <h2>Comments</h2>
+      <h2>댓글</h2>
       {comments.map(comment => (
         <div key={comment.id}>
           {editCommentId === comment.id ? (
@@ -102,8 +113,8 @@ const Comments: React.FC<CommentProps> = ({ postId, currentUser }) => {
           ) : (
             <div>
               <p>{comment.content}</p>
-              <p>작성자: {comment.user.nickname}</p>
-              {currentUser === comment.user.userid && (
+              <p>작성자: {comment.user?.nickname || 'Unknown'}</p>
+              {currentUser === comment.user?.userid && (
                 <div>
                   <button onClick={() => { setEditCommentId(comment.id); setEditCommentContent(comment.content); }}>수정</button>
                   <button onClick={() => handleDeleteComment(comment.id)}>삭제</button>

@@ -3,7 +3,7 @@ import axios from 'axios';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: { userid: string; nickname: string } | null;
+  user: { id: string; nickname: string; role: string } | null;
   login: (credentials: { userid: string; password: string }) => Promise<void>;
   logout: () => void;
 }
@@ -24,25 +24,16 @@ interface AuthProviderProps {
 
 export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<{ userid: string; nickname: string } | null>(null);
+  const [user, setUser] = useState<{ id: string; nickname: string; role: string } | null>(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
+    const id = localStorage.getItem('id');
+    const nickname = localStorage.getItem('nickname');
+    const role = localStorage.getItem('role');
     const token = localStorage.getItem('token');
-    if (storedUser && token) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        if (parsedUser && typeof parsedUser === 'object') {
-          setUser(parsedUser);
-          setIsAuthenticated(true);
-        } else {
-          throw new Error('Invalid user data');
-        }
-      } catch (error) {
-        console.error('Failed to parse user from localStorage:', error);
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-      }
+    if (id && nickname && role && token) {
+      setUser({ id, nickname, role });
+      setIsAuthenticated(true);
     }
   }, []);
 
@@ -50,21 +41,33 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await axios.post('http://localhost:8080/api/auth/login', credentials);
       if (response.status === 200 && response.data.token) {
+        const userResponse = await axios.get('http://localhost:8080/api/user/me', {
+          headers: {
+            'Authorization': `Bearer ${response.data.token}`
+          }
+        });
+        const userData = userResponse.data;
         setIsAuthenticated(true);
-        setUser({ userid: credentials.userid, nickname: '' });  // Modify as per your user data structure
-        localStorage.setItem('user', JSON.stringify({ userid: credentials.userid, nickname: '' }));  // Modify as per your user data structure
+        setUser({ id: userData.id, nickname: userData.nickname, role: userData.role });
+        localStorage.setItem('id', userData.id);
+        localStorage.setItem('nickname', userData.nickname);
+        localStorage.setItem('role', userData.role);
         localStorage.setItem('token', response.data.token);
       } else {
         setIsAuthenticated(false);
         setUser(null);
-        localStorage.removeItem('user');
+        localStorage.removeItem('id');
+        localStorage.removeItem('nickname');
+        localStorage.removeItem('role');
         localStorage.removeItem('token');
         throw new Error('Invalid login response');
       }
     } catch (error) {
       setIsAuthenticated(false);
       setUser(null);
-      localStorage.removeItem('user');
+      localStorage.removeItem('id');
+      localStorage.removeItem('nickname');
+      localStorage.removeItem('role');
       localStorage.removeItem('token');
       throw new Error('로그인 실패');
     }
@@ -73,7 +76,9 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
-    localStorage.removeItem('user');
+    localStorage.removeItem('id');
+    localStorage.removeItem('nickname');
+    localStorage.removeItem('role');
     localStorage.removeItem('token');
   };
 
