@@ -110,7 +110,7 @@ const InputWrapper = styled.div`
 const InputField = styled.textarea`
   padding: 0.5rem 2.5rem 0.5rem 0.5rem;
   font-size: 1rem;
-  height: 83px; /* 초기 높이 설정 */
+  height: 200px; /* 초기 높이 설정 */
   width: 100%;
   border: none;
   outline: none;
@@ -206,12 +206,12 @@ const CloseButton = styled.span`
 `;
 
 const ChatbotPage = () => {
-  const [story, setStory] = useState('');
-  const [chatHistory, setChatHistory] = useState<{ user: string, ai: string }[]>([]);
+  const [story, setStory] = useState('이혼을 원하는 사유를 4개의 단락으로 나눠주세요 :\n\n1. 초기 문제\n\n2. 갈등의 심화\n\n3. 결정적인 사건\n\n4. 결론 및 감정');
+  const [chatHistory, setChatHistory] = useState<{ user: string, ai: string, image: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const messageEndRef = useRef<HTMLDivElement | null>(null);
-  const [webtoonImage, setWebtoonImage] = useState('');
   const [modalShow, setModalShow] = useState(false);
+  const [selectedImage, setSelectedImage] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setStory(e.target.value);
@@ -241,8 +241,8 @@ const ChatbotPage = () => {
       }
 
       const data = await res.json();
-      setWebtoonImage(`data:image/png;base64,${data.webtoon}`);
-      setChatHistory(prevHistory => [...prevHistory, { user: story, ai: '' }]);
+      const image = `data:image/png;base64,${data.webtoon}`;
+      setChatHistory(prevHistory => [...prevHistory, { user: story, ai: '', image }]);
     } catch (error) {
       console.error('Error:', error);
       alert("오류: 요청을 처리하는 도중 문제가 발생했습니다.");
@@ -256,7 +256,12 @@ const ChatbotPage = () => {
     if (messageEndRef.current) {
       messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [webtoonImage])
+  }, [chatHistory]);
+
+  const handleImageClick = (image: string) => {
+    setSelectedImage(image);
+    setModalShow(true);
+  };
 
   return (
     <>
@@ -290,9 +295,9 @@ const ChatbotPage = () => {
                   <WebtoonContainer>
                     <h2>웹툰:</h2>
                     <WebtoonImage
-                      src={webtoonImage}
+                      src={chat.image}
                       alt="웹툰"
-                      onClick={() => setModalShow(true)}
+                      onClick={() => handleImageClick(chat.image)}
                     />
                   </WebtoonContainer>
                 </AiResponse>
@@ -318,7 +323,7 @@ const ChatbotPage = () => {
       <Modal $show={modalShow}>
         <ModalContent>
           <CloseButton onClick={() => setModalShow(false)}>&times;</CloseButton>
-          <img src={webtoonImage} alt="웹툰" style={{ width: '100%' }} />
+          <img src={selectedImage} alt="웹툰" style={{ width: '100%' }} />
         </ModalContent>
       </Modal>
     </>
