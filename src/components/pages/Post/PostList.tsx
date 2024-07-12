@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../services/auth';
 import styled from 'styled-components';
+import { format, isToday } from 'date-fns'; //npm install date-fns --legacy-peer-deps
 
 interface Post {
   id: number;
@@ -12,6 +13,7 @@ interface Post {
     userid: string;
     nickname: string;
   };
+  dateCreate: string;
   viewCount: number;
   likeCount: number;
 }
@@ -27,16 +29,37 @@ const PostListContainer = styled.div`
   margin: 20px;
 `;
 
-const PostItem = styled.li`
-  display: grid;
-  grid-template-columns: 1fr 4fr 2fr 1.5fr 1.5fr;
-  gap: 10px;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #f9f9f9;
-  list-style-type: none;
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+`;
+
+const TableHeader = styled.th`
+  background: #f2f2f2;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  padding: 15px;
+  text-align: center;
+`;
+
+const TableCell = styled.td`
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  padding: 15px;
+  text-align: center;
+`;
+
+const TableRow = styled.tr`
+  &:nth-child(even) {
+    background: #f9f9f9;
+  }
+`;
+
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 `;
 
 const SearchContainer = styled.div`
@@ -44,12 +67,6 @@ const SearchContainer = styled.div`
   justify-content: center;
   margin-bottom: 20px;
   height: 2.4rem;
-`;
-
-const PaginationContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
 `;
 
 const PaginationItem = styled.li`
@@ -79,6 +96,7 @@ const Button = styled.button`
   background-color: #007bff;
   color: white;
   cursor: pointer;
+  margin-bottom: 10px;
 
   &:hover {
     background-color: #0056b3;
@@ -89,12 +107,14 @@ const Input = styled.input`
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  margin-right: 10px;
 `;
 
 const Select = styled.select`
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  margin-right: 10px;
 `;
 
 const PostList: React.FC = () => {
@@ -180,21 +200,15 @@ const PostList: React.FC = () => {
     setCurPage(prevGroupFirstPage);
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return isToday(date) ? format(date, 'HH:mm') : format(date, 'yyyy-MM-dd');
+  };
+
   return (
     <PostListContainer>
       <Button onClick={handleCreatePostClick}>글쓰기</Button>
       <Button><Link to={`/popularposts`}>좋아요 30 이상글</Link></Button>
-      <ul>
-        {posts.map((post, index) => (
-          <PostItem key={post.id}>
-            <span>{totalItems - ((curPage - 1) * 10 + index)} </span>
-            <Link to={`/posts/${post.id}`}>{post.title}</Link>
-            <span> {post.user.nickname}</span>
-            <span> 조회수: {post.viewCount}</span>
-            <span> 좋아요: {post.likeCount}</span>
-          </PostItem>
-        ))}
-      </ul>
       <SearchContainer>
         <Select name="sk" onChange={handleSearchChange}>
           <option value="">제목+내용</option>
@@ -210,6 +224,32 @@ const PostList: React.FC = () => {
         />
         <Button onClick={handleSearch}>검색</Button>
       </SearchContainer>
+      <Table>
+        <thead>
+          <tr>
+            <TableHeader>번호</TableHeader>
+            <TableHeader>제목</TableHeader>
+            <TableHeader>작성자</TableHeader>
+            <TableHeader>작성일</TableHeader>
+            <TableHeader>조회수</TableHeader>
+            <TableHeader>좋아요</TableHeader>
+          </tr>
+        </thead>
+        <tbody>
+          {posts.map((post, index) => (
+            <TableRow key={post.id}>
+              <TableCell>{totalItems - ((curPage - 1) * 10 + index)}</TableCell>
+              <TableCell>
+                <Link to={`/posts/${post.id}`}>{post.title}</Link>
+              </TableCell>
+              <TableCell>{post.user.nickname}</TableCell>
+              <TableCell>{formatDate(post.dateCreate)}</TableCell>
+              <TableCell>{post.viewCount}</TableCell>
+              <TableCell>{post.likeCount}</TableCell>
+            </TableRow>
+          ))}
+        </tbody>
+      </Table>
       <PaginationContainer>
         {curPage > 10 && (
           <PaginationItem
