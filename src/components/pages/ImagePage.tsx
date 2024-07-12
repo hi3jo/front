@@ -70,6 +70,7 @@ const MessageContainer = styled.div`
 `;
 
 const WebtoonContainer = styled.div`
+  position: relative;
   padding: 1rem;
   background: #f8f9fa;
   border-radius: 5px;
@@ -85,6 +86,7 @@ const WelcomeMessage = styled.div`
 `;
 
 const UserMessage = styled.div`
+  margin-top : 50px;
   text-align: right;
   margin-bottom: 1rem;
   color: #007bff;
@@ -210,9 +212,10 @@ const CloseButton = styled.span`
 `;
 
 const DownloadButton = styled.a`
-  display: inline-block;
-  margin-top: 10px;
-  padding: 10px 20px;
+  position: absolute;
+  bottom: -10px;
+  left: 144px;
+  padding: 5px 10px;
   color: white;
   background-color: #007bff;
   border-radius: 5px;
