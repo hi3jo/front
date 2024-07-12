@@ -121,9 +121,8 @@ const InputField = styled.textarea`
 
 const IconButton = styled.button`
   position: absolute;
-  right: 0.7rem;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 2rem;
+  bottom: 1rem;  // 아이콘 버튼을 항상 입력란 오른쪽 하단에 고정
   background: transparent;
   border: none;
   cursor: pointer;
