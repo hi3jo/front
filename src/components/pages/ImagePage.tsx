@@ -1,37 +1,81 @@
 import React, { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import { FaPaperPlane } from 'react-icons/fa';
+
+const GlobalStyle = createGlobalStyle`
+  html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+`;
+
+const AiResponseContainer = styled.div`
+  display: flex;
+`;
+
+// 챗봇 아이콘
+const ChatbotIcon = styled.img`
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+`;
+
+const AiResponseText = styled.span`
+  color: #28a745;
+`;
+
+const Container = styled.div`
+  display: flex;
+  height: 100vh;
+  background: #f5f5f5;
+  overflow: hidden;
+`;
+
+const HistoryContainer = styled.div`
+  width: 300px;
+  margin-top : 80px;
+  background: #343a40;
+  color: #fff;
+  padding: 1rem;
+  overflow-y: auto;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
 
 const ChatbotContainer = styled.div`
   padding: 2rem;
-  max-width: 1800px;
-  height: 800px;
-  margin: 0 auto;
+  margin-top : 80px;
+  width:100%;
   background: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
 `;
 
 const ChatHeader = styled.h1`
   text-align: center;
+  margin-bottom: 1rem;
 `;
 
 const MessageContainer = styled.div`
-  margin-top: 2rem;
+  flex: 1;
   padding: 1rem;
   background: #f8f9fa;
   border-radius: 5px;
-  height: 600px;
   overflow-y: auto;
 `;
 
 const WebtoonContainer = styled.div`
-  margin-top: 2rem;
   padding: 1rem;
   background: #f8f9fa;
   border-radius: 5px;
   height: auto;
   max-width: 100%;
-  text-align: center;
+  text-align: left;
 `;
 
 const WelcomeMessage = styled.div`
@@ -62,21 +106,23 @@ const InputWrapper = styled.div`
   width: 100%;
 `;
 
-const InputField = styled.input`
+// textarea 스타일 컴포넌트 정의
+const InputField = styled.textarea`
   padding: 0.5rem 2.5rem 0.5rem 0.5rem;
   font-size: 1rem;
+  height: 200px; /* 초기 높이 설정 */
   width: 100%;
   border: none;
   outline: none;
   border-radius: 5px;
   border: 1px solid rgb(201, 201, 201);
+  resize: none; /* textarea 크기 조정 금지 */
 `;
 
 const IconButton = styled.button`
   position: absolute;
-  right: 0.7rem;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 2rem;
+  bottom: 1rem;  // 아이콘 버튼을 항상 입력란 오른쪽 하단에 고정
   background: transparent;
   border: none;
   cursor: pointer;
@@ -89,78 +135,217 @@ const IconButton = styled.button`
   }
 `;
 
+const HistoryItem = styled.div`
+  padding: 0.5rem;
+  cursor: pointer;
+  border-bottom: 1px solid #495057;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover {
+    background: #495057;
+  }
+`;
+
 const WebtoonImage = styled.img`
   max-width: 100%;
   height: auto;
   border-radius: 5px;
+  width: 200px;
+  height: 200px;
+  cursor: pointer;
+`;
+
+const Loader = styled.div`
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #3498db;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+  margin: 2rem auto;
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
+const Modal = styled.div<{ $show: boolean }>`
+  display: ${props => (props.$show ? 'block' : 'none')};
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+`;
+
+const ModalContent = styled.div`
+  background-color: #fefefe;
+  margin: 10% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 70%;
+`;
+
+const CloseButton = styled.span`
+  color: #aaa;
+  float: right;
+  font-size: 35px;
+  font-weight: bold;
+
+  &:hover,
+  &:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+`;
+
+const DownloadButton = styled.a`
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 20px;
+  color: white;
+  background-color: #007bff;
+  border-radius: 5px;
+  text-decoration: none;
+
+  &:hover {
+    background-color: #0056b3;
+  }
 `;
 
 const ChatbotPage = () => {
-  const [question, setQuestion] = useState('');
-  const [chatHistory, setChatHistory] = useState<{ user: string, ai: string }[]>([]);
+  const [story, setStory] = useState('이혼을 원하는 사유를 4개의 단락으로 나눠주세요 :\n\n1. 초기 문제\n\n2. 갈등의 심화\n\n3. 결정적인 사건\n\n4. 결론 및 감정');
+  const [chatHistory, setChatHistory] = useState<{ user: string, ai: string, image: string }[]>([]);
+  const [loading, setLoading] = useState(false);
   const messageEndRef = useRef<HTMLDivElement | null>(null);
-  const [webtoonImage, setWebtoonImage] = useState('');
+  const [modalShow, setModalShow] = useState(false);
+  const [selectedImage, setSelectedImage] = useState('');
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setQuestion(e.target.value);
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setStory(e.target.value);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);           // 로딩 시작
     try {
       const res = await fetch(
-        'http://localhost:8000/img/generate-webtoon',
+        'http://localhost:8000/api/generate-webtoon',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question })
+          body: JSON.stringify({ story })
         }
       );
 
+      if (!res.ok) {
+        if (res.status === 400) {
+          alert("오류: 유효하지 않은 입력입니다."); // 400 에러 시 알림
+        } else {
+          alert("오류: 서버에 문제가 발생했습니다.");
+        }
+        setLoading(false);
+        return;
+      }
+
       const data = await res.json();
-      setWebtoonImage(`data:image/png;base64,${data.image}`);
+      const image = `data:image/png;base64,${data.webtoon}`;
+      setChatHistory(prevHistory => [...prevHistory, { user: story, ai: '', image }]);
     } catch (error) {
       console.error('Error:', error);
+      alert("오류: 요청을 처리하는 도중 문제가 발생했습니다.");
     }
 
-    setQuestion('');
+    setLoading(false);
+    setStory('');
   };
 
   useEffect(() => {
     if (messageEndRef.current) {
       messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [webtoonImage])
+  }, [chatHistory]);
+
+  const handleImageClick = (image: string) => {
+    setSelectedImage(image);
+    setModalShow(true);
+  };
 
   return (
-    <ChatbotContainer>
-      <ChatHeader>웹툰 생성</ChatHeader>
-      <MessageContainer>
-        {chatHistory.length === 0 && (
-          <WelcomeMessage>당신의 이야기를 웹툰으로 만들어 드립니다.</WelcomeMessage>
-        )}
-        {webtoonImage && (
-          <WebtoonContainer>
-            <h2>웹툰:</h2>
-            <WebtoonImage src={webtoonImage} alt="웹툰" />
-          </WebtoonContainer>
-        )}
-        <div ref={messageEndRef} />
-      </MessageContainer>
-      <InputForm onSubmit={handleSubmit}>
-        <InputWrapper>
-          <InputField
-            type="text"
-            value={question}
-            onChange={handleInputChange}
-            placeholder="질문 해봐"
-          />
-          <IconButton type="submit">
-            <FaPaperPlane />
-          </IconButton>
-        </InputWrapper>
-      </InputForm>
-    </ChatbotContainer>
+    <>
+      <GlobalStyle />
+      <Container>
+        <HistoryContainer>
+          <h2>History</h2>
+          {chatHistory.map((chat, index) => (
+            <HistoryItem key={index}>
+              {chat.user}
+            </HistoryItem>
+          ))}
+        </HistoryContainer>
+        <ChatbotContainer>
+          <ChatHeader>웹툰 생성</ChatHeader>
+          <AiResponseContainer>
+            <ChatbotIcon src='/icon/free-icon-chatbot-6014401.png' alt="Chatbot Icon" />
+            <AiResponseText>안녕하세요 사연을 적어주시면 사연을 토대로 이미지를 생성해드리겠습니다</AiResponseText>
+          </AiResponseContainer>
+          <MessageContainer>
+            {chatHistory.length === 0 && (
+              <>
+                <WelcomeMessage>당신의 이야기를 웹툰으로 만들어 드립니다.</WelcomeMessage>
+                <WelcomeMessage>카톡 채팅처럼 영역을 가지고 웹툰을 그리고자 하는 사연의 초반 부를 적어주세요.</WelcomeMessage>
+              </>
+            )}
+            {chatHistory.map((chat, index) => (
+              <div key={index}>
+                <UserMessage>{chat.user}</UserMessage>
+                <AiResponse>
+                  <WebtoonContainer>
+                    <h2>웹툰:</h2>
+                    <WebtoonImage
+                      src={chat.image}
+                      alt="웹툰"
+                      onClick={() => handleImageClick(chat.image)}
+                    />
+                    <DownloadButton href={chat.image} download={`webtoon_${index + 1}.png`}>다운로드</DownloadButton>
+                  </WebtoonContainer>
+                </AiResponse>
+              </div>
+            ))}
+            {loading && <Loader />} {/* 로딩 중일 때 로딩바 표시 */}
+            <div ref={messageEndRef} />
+          </MessageContainer>
+          <InputForm onSubmit={handleSubmit}>
+            <InputWrapper>
+              <InputField
+                value={story}
+                onChange={handleInputChange}
+                placeholder="사연을 입력해주세요."
+              />
+              <IconButton type="submit">
+                <FaPaperPlane />
+              </IconButton>
+            </InputWrapper>
+          </InputForm>
+        </ChatbotContainer>
+      </Container>
+      <Modal $show={modalShow}>
+        <ModalContent>
+          <CloseButton onClick={() => setModalShow(false)}>&times;</CloseButton>
+          <img src={selectedImage} alt="웹툰" style={{ width: '100%' }} />
+        </ModalContent>
+      </Modal>
+    </>
   );
 };
 
