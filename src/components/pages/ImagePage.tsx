@@ -209,6 +209,20 @@ const CloseButton = styled.span`
   }
 `;
 
+const DownloadButton = styled.a`
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 20px;
+  color: white;
+  background-color: #007bff;
+  border-radius: 5px;
+  text-decoration: none;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+`;
+
 const ChatbotPage = () => {
   const [story, setStory] = useState('이혼을 원하는 사유를 4개의 단락으로 나눠주세요 :\n\n1. 초기 문제\n\n2. 갈등의 심화\n\n3. 결정적인 사건\n\n4. 결론 및 감정');
   const [chatHistory, setChatHistory] = useState<{ user: string, ai: string, image: string }[]>([]);
@@ -303,6 +317,7 @@ const ChatbotPage = () => {
                       alt="웹툰"
                       onClick={() => handleImageClick(chat.image)}
                     />
+                    <DownloadButton href={chat.image} download={`webtoon_${index + 1}.png`}>다운로드</DownloadButton>
                   </WebtoonContainer>
                 </AiResponse>
               </div>
