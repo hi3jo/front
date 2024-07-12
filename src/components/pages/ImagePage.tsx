@@ -140,6 +140,11 @@ const HistoryItem = styled.div`
   padding: 0.5rem;
   cursor: pointer;
   border-bottom: 1px solid #495057;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &:hover {
     background: #495057;
