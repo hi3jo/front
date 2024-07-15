@@ -16,6 +16,7 @@ interface Post {
   viewCount: number;
   likes: { id: number; user: User }[];
   likeCount: number;
+  imageUrls?: string[];
 }
 
 const PostDetail: React.FC = () => {
@@ -109,11 +110,14 @@ const PostDetail: React.FC = () => {
 
   return (
     <div>
-      <h1>{post.title}</h1>
-      <p>{post.content}</p>
+      <h1>제목: {post.title}</h1>
+      <p>내용: {post.content}</p>
       <p>작성자: {post.user.nickname}</p>
       <p>조회수: {post.viewCount}</p>
       <p>좋아요: {post.likeCount}</p>
+      {post.imageUrls && post.imageUrls.map((url, index) => (
+        <img key={index} src={`http://localhost:8080${url}`} alt={`게시글 이미지 ${post.title} - ${index + 1}`} />
+      ))}
       <button onClick={handleLike}>{liked ? '좋아요 취소' : '좋아요'}</button>
       {currentUser === post.user.userid && (
         <div>
