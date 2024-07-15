@@ -3,7 +3,7 @@ import styled, { createGlobalStyle } from 'styled-components';
 import { FaPaperPlane } from 'react-icons/fa';
 import { ImSpinner3 } from 'react-icons/im';
 import { useAuth } from '../services/auth';
-import dayjs from 'dayjs';
+import dayjs from 'dayjs'; // npm install dayjs --legacy-peer-deps
 
 interface HistoryItem {
   id: number;
@@ -219,6 +219,7 @@ const ChatbotPage: React.FC = () => {
 
   useEffect(() => {
     fetchUserHistory();
+  // eslint-disable-next-line
   }, [user]);
 
   const categorizeHistory = (historyList: HistoryItem[]) => {
