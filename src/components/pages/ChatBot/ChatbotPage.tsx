@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { FaPaperPlane } from 'react-icons/fa';
 import { ImSpinner3 } from 'react-icons/im';
-import { useAuth } from '../services/auth';
+import { useAuth } from '../../services/auth';
 import dayjs from 'dayjs'; // npm install dayjs --legacy-peer-deps
 
 interface HistoryItem {
@@ -326,7 +326,52 @@ const ChatbotPage: React.FC = () => {
 
     setLoading(true);
 
+    // AI 응답 받아오는 코드 추가
     try {
+      const res = await fetch(`http://localhost:8000/api/query-v3/?query_text=${encodeURIComponent(chatBot)}`);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
+      setChatHistory(prevHistory => [...prevHistory, { user: chatBot, ai: '' }]);
+
+      let currentIndex = -1;
+      const intervalId = setInterval(() => {
+        currentIndex++;
+        if (data.answer && currentIndex < data.answer.length) {
+          setChatHistory(prev => {
+            const newHistory = [...prev];
+            newHistory[newHistory.length - 1].ai += data.answer[currentIndex];
+            return newHistory;
+          });
+        } else {
+          clearInterval(intervalId);
+          setLoading(false);
+        }
+      }, 20);
+
+      setHistoryList(prevList => {
+        const updatedList = prevList.map(item => {
+          if (item.id === currentHistoryId) {
+            return { ...item, lastChatBotDate: new Date().toISOString(), className: '' };
+          }
+          return item;
+        }).sort((a, b) => new Date(b.lastChatBotDate).getTime() - new Date(a.lastChatBotDate).getTime());
+        return updatedList;
+      });
+
+      console.log('Received response:', data.id);
+    } catch (error) {
+      console.error('Error:', error);
+      setLoading(false);
+      alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    }
+
+    setChatBot('');
+    
+    try {
+        //질문 저장
       const response = await fetch('http://localhost:8080/api/chatbot/ask', {
         method: 'POST',
         headers: {
@@ -340,6 +385,7 @@ const ChatbotPage: React.FC = () => {
       }
       const data = await response.json();
 
+      //답변 저장하는 부분
       const aiResponse = data.answer;
       setChatHistory(prevHistory => [...prevHistory, { user: chatBot, ai: '' }]);
 
@@ -377,6 +423,7 @@ const ChatbotPage: React.FC = () => {
 
     setChatBot('');
   };
+
 
   const handleHistoryClick = async (historyId: number) => {
     setSelectedHistoryId(historyId);
