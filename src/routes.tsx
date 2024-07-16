@@ -13,6 +13,7 @@ import CreatePost from './components/pages/Post/CreatePost';
 import PostDetail from './components/pages/Post/PostDetails';
 import UpdatePost from './components/pages/Post/UpdatePost';
 import PopularPosts from './components/pages/Post/PopularPosts';
+import ImageAnalysis from './components/pages/ImageAnalysis';
 
 const AppRoutes = () => {
   // chatHistory와 setChatHistory 상태를 상위 컴포넌트에서 관리
@@ -33,6 +34,7 @@ const AppRoutes = () => {
       <Route path="/popularposts" element={<PopularPosts />} />
       <Route path="/posts/:id" element={<PostDetail />} />
       <Route path="/posts/update/:id" element={<UpdatePost />} />
+      <Route path="/imageAnalysis" element={<ImageAnalysis />} />
     </Routes>
   );
 };
