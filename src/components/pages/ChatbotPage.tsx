@@ -358,7 +358,6 @@ const ChatbotPage: React.FC = () => {
         }
       }, 20);
 
-      // Update historyList to bring the current history to the top
       setHistoryList(prevList => {
         const updatedList = prevList.map(item => {
           if (item.id === currentHistoryId) {
