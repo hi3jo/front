@@ -99,6 +99,7 @@ const Navbar = () => {
         <NavLinks>
           <StyledButton as={RouterNavLink} to="/chatbot">AI챗봇 시스템</StyledButton>
           <StyledButton as={RouterNavLink} to="/image">이미지 생성</StyledButton>
+          <StyledButton as={RouterNavLink} to="/imageAnalysis">이미지 분석</StyledButton>
           <StyledButton as={RouterNavLink} to="/post">커뮤니티</StyledButton>
         </NavLinks>
       </LeftContainer>
