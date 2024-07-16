@@ -16,6 +16,7 @@ interface Post {
   dateCreate: string;
   viewCount: number;
   likeCount: number;
+  commentCount?: number;
 }
 
 interface PostsResponse {
@@ -36,53 +37,90 @@ const PostListContainer = styled.div`
 `;
 
 const BestPost = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   padding: 3rem;
-  border: 1px solid #ddd;
-  width: 100%
-  height: 12rem;
+  border: 2px solid #20B2AA;
+  width: 50rem;
+  height: 16rem;
 `
 
 const BestTitle = styled.div`
-  padding: 1rem 0;
+  margin-top: -0.8rem;
+  padding: 1.4rem 0;
   border-bottom: 1px solid #ddd;
+  font-size: 1.5rem;
+  font-weight: bold;
 `
 
-const Table = styled.table`
-  width: 45rem;
+const BestPostNumber = styled.span`
+  font-size: 1rem;
+  font-weight: bold;
+`
+
+const BestPostLabel= styled.span`
+  background-color: blue;
+  padding: 0 0.2rem;
+  color: white;
+  font-size: 0.7rem;
+`
+
+const BestPostItem = styled.div`
+  padding: 0.6rem 0;
+  }
+`;
+
+const Table = styled.div`
+  width: 50rem;
   border-collapse: collapse;
   margin: 20px 0;
 `;
 
-const TableRow = styled.tr`
+const TableRow = styled.div`
   border-top: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
   display: flex;
   flex-direction: column;
-  padding: 15px;
+  padding: 15px 0;
   text-align: left;
-  height: 10rem;
+  height: 9rem;
   }
 `;
 
-const TableTitle = styled.tr`
-  font-size: 1.5rem;
-  padding: 0.8rem 0;
+const TableHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   height:3rem;
 `
 
-const TableContent = styled.tr`
-  font-size: 1rem;
-  padding: 0.8rem 0;
+const TableTitle = styled.div`
+  font-size: 1.2rem;
+  color: #333333;
+  font-weight: 600;
+`
+
+const TableLike = styled.div`
+  color: #444444;
+  font-size: 0.9rem;
+`
+
+const TableContent = styled.div`
+  color: #555555;
+  font-size: 0.9rem;
+  padding: 0.8rem 0.3rem;
   height: 3rem;
 `
 
-const TableLike = styled.tr`
-  margin-top: -25px;
-  text-align: right;
-`
+const TableNick = styled.div`
+  color: #444444;
+  padding: 0.9rem 0;
+  font-size: 0.7rem;
 
-const TableNick = styled.tr`
-  padding: 0.8rem 0;
+  svg {
+    vertical-align: middle;
+  }
 `
 
 const PaginationContainer = styled.div`
@@ -93,18 +131,17 @@ const PaginationContainer = styled.div`
 
 const SearchContainer = styled.div`
   display: flex;
+  
   justify-content: center;
-  margin-bottom: 20px;
+  margin-top: 20px;
   height: 2.4rem;
 `;
 
 const PaginationItem = styled.li`
   list-style-type: none;
-  margin: 0 5px;
   cursor: pointer;
-  padding: 5px 10px;
+  padding: 7px 12px;
   border: 1px solid #ddd;
-  border-radius: 4px;
   background: #fff;
 
   &.active {
@@ -159,7 +196,9 @@ const PostWrite = styled.button`
   background-color: #007bff;
   color: white;
   cursor: pointer;
-  font-size: 1.7rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: initial;
 
   &:hover {
     background-color: #0056b3;
@@ -172,12 +211,13 @@ const PostList: React.FC = () => {
   const [curPage, setCurPage] = useState(1);
   const [search, setSearch] = useState({ sk: '', sv: '' });
   const [totalPages, setTotalPages] = useState(0);
-
+  const [bestPosts, setBestPosts] = useState<Post[]>([]);
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchPosts();
+    fetchBestPosts();
   // eslint-disable-next-line
   }, [curPage]);
 
@@ -205,6 +245,23 @@ const PostList: React.FC = () => {
       console.error('Failed to fetch posts:', error);
     }
   };
+
+  const fetchBestPosts = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get<Post[]>('http://localhost:8080/api/posts/best', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setBestPosts(response.data);
+    } catch (error) {
+      console.error('Failed to fetch best posts:', error);
+    }
+  };
+
+  const bestPostNumbers = ['1위', '2위', '3위', '4위', '5위']
+  const bestPostLabels = ['Best', 'Best', 'Best', 'Best', 'Best'];
 
   const handleCreatePostClick = () => {
     if (isAuthenticated) {
@@ -253,77 +310,83 @@ const PostList: React.FC = () => {
   };
 
   return (
-    <PageContainer>
-      <PostListContainer>
-        <Button><Link to={`/popularposts`}>좋아요 30 이상글</Link></Button>
-        <BestPost>
-          <BestTitle>{"\uD83C\uDFC6"} 베스트 게시물</BestTitle>
-          <div>1위</div>
-          <div>1위</div>
-          <div>1위</div>
-          <div>1위</div>
-        </BestPost>
-        <Table>
-          <tbody>
+    <div className="no-global-font">
+      <PageContainer>
+        <PostListContainer>
+          <Button><Link to={`/popularposts`}>좋아요 30 이상글</Link></Button>
+          <BestPost>
+            <BestTitle>{"\uD83C\uDFC6"} 베스트 게시물</BestTitle>
+            {bestPosts.map((post, index) => (
+              <BestPostItem key={post.id}>
+                <BestPostNumber>{bestPostNumbers[index]}&nbsp;</BestPostNumber>
+                <Link to={`/posts/${post.id}`}>
+                  <BestPostLabel>{bestPostLabels[index]}</BestPostLabel> {post.title}  ({post.commentCount})
+                </Link>
+              </BestPostItem>
+            ))}
+          </BestPost>
+          <Table>
             {posts.map((post) => (
               <TableRow key={post.id}>
-                <TableTitle>
-                  <Link to={`/posts/${post.id}`}>{post.title}</Link>
-                </TableTitle>
-                <TableLike>좋아요 : {post.likeCount}</TableLike>
+                <TableHeader>
+                  <TableTitle>
+                    <Link to={`/posts/${post.id}`}>{post.title} ({post.commentCount})</Link>
+                  </TableTitle>
+                  <TableLike>{"\u2764\uFE0F"}좋아요: {post.likeCount}</TableLike>
+                </TableHeader>
                 <TableContent>
                   <Link to={`/posts/${post.id}`}>{post.content.length > 100 ? `${post.content.substring(0, 100)}...` : post.content}</Link>
                 </TableContent>
                 <TableNick>{post.user.nickname} | {formatDate(post.dateCreate)} 조회수 : {post.viewCount}</TableNick>
               </TableRow>
             ))}
-          </tbody>
-        </Table>
-        <PaginationContainer>
-          {curPage > 10 && (
-            <PaginationItem
-              onClick={handlePrevPageGroupClick}
-            >
-              &lt;
-            </PaginationItem>
-          )}
-          {pageList.map((page, index) => (
-            <PaginationItem
-              key={index}
-              className={page === curPage ? 'active' : ''}
-              onClick={() => handlePageClick(page)}
-            >
-              {page}
-            </PaginationItem>
-          ))}
-          {curPage <= Math.floor(totalPages / 10) * 10 && (
-            <PaginationItem
-              onClick={handleNextPageGroupClick}
-            >
-              &gt;
-            </PaginationItem>
-          )}
-        </PaginationContainer>
-        <SearchContainer>
-          <Select name="sk" onChange={handleSearchChange}>
-            <option value="">제목+내용</option>
-            <option value="title">제목</option>
-            <option value="content">내용</option>
-          </Select>
-          <Input
-            type="text"
-            name="sv"
-            onChange={handleSearchChange}
-            onKeyDown={handleKeyPress}
-            placeholder="검색어 입력"
-          />
-          <Button onClick={handleSearch}>검색</Button>
-        </SearchContainer>
-      </PostListContainer>
-      <SideContainer>
-        <PostWrite onClick={handleCreatePostClick}>글쓰기</PostWrite>
-      </SideContainer>
-    </PageContainer>
+          </Table>
+          <PaginationContainer>
+            {curPage > 10 && (
+              <PaginationItem
+                onClick={handlePrevPageGroupClick}
+              >
+                &lt;
+              </PaginationItem>
+            )}
+            {pageList.map((page, index) => (
+              <PaginationItem
+                key={index}
+                className={page === curPage ? 'active' : ''}
+                onClick={() => handlePageClick(page)}
+              >
+                {page}
+              </PaginationItem>
+            ))}
+            {curPage <= Math.floor(totalPages / 10) * 10 && (
+              <PaginationItem
+                onClick={handleNextPageGroupClick}
+              >
+                &gt;
+              </PaginationItem>
+            )}
+          </PaginationContainer>
+          <SearchContainer>
+            <Select name="sk" onChange={handleSearchChange}>
+              <option value="">제목+내용</option>
+              <option value="title">제목</option>
+              <option value="content">내용</option>
+            </Select>
+            <Input
+              type="text"
+              name="sv"
+              onChange={handleSearchChange}
+              onKeyDown={handleKeyPress}
+              placeholder="검색어 입력"
+            />
+            <Button onClick={handleSearch}>검색</Button>
+          </SearchContainer>
+        </PostListContainer>
+        <SideContainer>
+          <PostWrite onClick={handleCreatePostClick}>커뮤니티 글쓰기</PostWrite>
+        </SideContainer>
+      </PageContainer>
+    </div>
   );
 };
 
