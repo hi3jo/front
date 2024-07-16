@@ -88,6 +88,7 @@ const Navbar = () => {
         <NavLinks>
           <StyledButton onClick={() => window.location.href = "/chatbot"}>AI챗봇 시스템</StyledButton>
           <StyledButton onClick={() => window.location.href = "/image"}>이미지 생성</StyledButton>
+          <StyledButton onClick={() => window.location.href = "/imageAnalysis"}>이미지 분석</StyledButton>
           <StyledButton onClick={() => window.location.href = "/post"}>커뮤니티</StyledButton>
         </NavLinks>
       </LeftContainer>
