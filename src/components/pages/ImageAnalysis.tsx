@@ -17,6 +17,9 @@ const ImageContainer = styled.div`
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const Header = styled.h2`
@@ -31,8 +34,15 @@ const Form = styled.form`
   align-items: center;
 `;
 
-const FileInput = styled.input`
+const FileInputContainer = styled.div`
   margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const FileInput = styled.input`
+  margin-bottom: 1rem;
 `;
 
 const IconButton = styled.button`
@@ -50,6 +60,13 @@ const IconButton = styled.button`
   &:hover {
     background: #0056b3;
   }
+`;
+
+const ImagePreview = styled.img`
+  width: 100%;
+  margin-top: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ddd;
 `;
 
 const ResultContainer = styled.div`
@@ -181,15 +198,17 @@ const ImageAnalysis = () => {
     <Container>
       <ImageContainer>
         <Header>이미지 분석 1</Header>
-        <Form onSubmit={handleSubmit1}>
-          <FileInput type="file" onChange={handleFileChange1} ref={fileInputRef1} required />
-          <IconButton type="submit">
-            <FaPaperPlane />
-          </IconButton>
-        </Form>
         {file1 && (
-          <img src={URL.createObjectURL(file1)} alt="Selected" style={{ width: '100%', marginTop: '1rem' }} />
+          <ImagePreview src={URL.createObjectURL(file1)} alt="Selected" />
         )}
+        <Form onSubmit={handleSubmit1}>
+          <FileInputContainer>
+            <FileInput type="file" onChange={handleFileChange1} ref={fileInputRef1} required />
+            <IconButton type="submit">
+              <FaPaperPlane />
+            </IconButton>
+          </FileInputContainer>
+        </Form>
         {answer1 && (
           <ResultContainer>
             <ResultHeader>분석 결과 1</ResultHeader>
@@ -199,15 +218,17 @@ const ImageAnalysis = () => {
       </ImageContainer>
       <ImageContainer>
         <Header>이미지 분석 2</Header>
-        <Form onSubmit={handleSubmit2}>
-          <FileInput type="file" onChange={handleFileChange2} ref={fileInputRef2} required />
-          <IconButton type="submit">
-            <FaPaperPlane />
-          </IconButton>
-        </Form>
         {file2 && (
-          <img src={URL.createObjectURL(file2)} alt="Selected" style={{ width: '100%', marginTop: '1rem' }} />
+          <ImagePreview src={URL.createObjectURL(file2)} alt="Selected" />
         )}
+        <Form onSubmit={handleSubmit2}>
+          <FileInputContainer>
+            <FileInput type="file" onChange={handleFileChange2} ref={fileInputRef2} required />
+            <IconButton type="submit">
+              <FaPaperPlane />
+            </IconButton>
+          </FileInputContainer>
+        </Form>
         {answer2 && (
           <ResultContainer>
             <ResultHeader>분석 결과 2</ResultHeader>
