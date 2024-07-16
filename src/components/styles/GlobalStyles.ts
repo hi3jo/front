@@ -18,6 +18,10 @@ const GlobalStyles = createGlobalStyle`
     overflow-x: hidden;
   }
 
+  .no-global-font {
+    font-family: initial;
+  }
+
   a {
     text-decoration: none;
     color: inherit;
@@ -28,7 +32,7 @@ const GlobalStyles = createGlobalStyle`
   }
 
   button {
-    font-family: 'Jua', sans-serif; /* 버튼에도 폰트 스타일 적용 */
+    font-family: 'Jua', sans-serif;
   }
 
   /* 커스텀 스크롤바 */
