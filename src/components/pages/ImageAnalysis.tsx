@@ -122,19 +122,10 @@ const ImageListItem = styled.li`
   width: 100%;
 `;
 
-const ResultContainer = styled.div`
-  text-align: center;
+const ResultContent = styled.div`
   color: #555;
   margin: 0 1rem;
   flex: 2;
-  background: #333;  /* 진한 회색 배경 */
-  padding: 1rem;
-  border-radius: 10px;
-`;
-
-const ResultContent = styled.div`
-  color: #fff;  /* 흰색 텍스트 */
-  margin: 0;
 `;
 
 const DateContent = styled.p`
@@ -145,7 +136,7 @@ const DateContent = styled.p`
 `;
 
 const EvidenceStatus = styled.p<{ $isPossible: boolean }>`
-  color: ${props => (props.$isPossible ? 'lightgreen' : 'lightcoral')};
+  color: ${props => (props.$isPossible ? 'green' : 'red')};
   font-weight: bold;
   align-items: center;
 `;
@@ -340,12 +331,12 @@ const ImageAnalysis = () => {
             </FileInputContainer>
           </Form>
           {analysisResult1 && (
-            <ResultContainer>
+            <>
               <ResultContent>분석 결과: {analysisResult1.answer}</ResultContent>
               <EvidenceStatus $isPossible={analysisResult1.isPossible}>
                 증거 채택 여부: {analysisResult1.isPossible ? 'True' : 'False'}
               </EvidenceStatus>
-            </ResultContainer>
+            </>
           )}
         </LeftPanel>
         <RightPanel>
