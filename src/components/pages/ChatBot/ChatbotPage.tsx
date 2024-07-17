@@ -339,18 +339,21 @@ const ChatbotPage: React.FC = () => {
 
     // 답변 저장
     try {
+      // fetch 함수 사용하여 서버에 HTTP POST 요청을 보냅니다.
       const response = await fetch('http://localhost:8080/api/chatbot/answer', {
           method: 'POST',
           headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
+              'Content-Type': 'application/json', // 전송하는 데이터의 타입은 JSON입니다.
+              'Authorization': `Bearer ${token}` // Authorization 헤더에 Bearer 토큰을 추가하여 인증 정보를 보냅니다.
           },
-          body: JSON.stringify({ ask: chatBot, answer: aiResponse, history: { id: currentHistoryId } }) // 수정된 부분
+          body: JSON.stringify({ ask: chatBot, answer: aiResponse, history: { id: currentHistoryId } }) // 요청 본문(body)에 JSON 형식의 데이터를 포함
       });
+      // 서버의 응답 상태가 OK(200-299)가 아니면 에러를 발생시킵니다.
       if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
     } catch (error) {
+        // 요청 중 에러가 발생하면 콘솔에 에러 메시지를 출력합니다.
         console.error('Error saving answer:', error);
     }
 
