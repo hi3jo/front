@@ -337,7 +337,7 @@ const PostDetail: React.FC = () => {
             <TableContent>{post.content}</TableContent>
             <ContentImg>
               {post.imageUrls && post.imageUrls.map((url, index) => (
-                <img key={index} src={`http://localhost:8080${url}`} alt={`게시글 이미지 ${post.title} - ${index + 1}`} />
+                <img key={index} src={`${url}`} alt={`게시글 이미지 ${post.title} - ${index + 1}`} />
               ))}
             </ContentImg>
             <ButtonGroup>
