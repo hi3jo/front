@@ -265,7 +265,7 @@ const ImageAnalysis = () => {
         const formData = new FormData();
         formData.append('file', file);
 
-        const res = await axios.post('http://localhost:8080/api/imageAnalysis/upload', formData, {
+        const res = await axios.post('http://localhost:8080/api/textImgAna/upload', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             'Authorization': `Bearer ${token}`,
