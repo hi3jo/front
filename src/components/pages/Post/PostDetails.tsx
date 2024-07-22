@@ -265,13 +265,18 @@ const PostDetail: React.FC = () => {
     }
   };
 
+  //게시글 삭제
   const handleDelete = async () => {
+
     try {
       const token = localStorage.getItem('token');
-      if (token) {
-        await axios.delete(`http://localhost:8080/api/posts/${id}`, {
+      if (token && post) {
+        
+        const imgUrls = post.imageUrls;
+        await axios.delete(`http://localhost:8080/api/posts/${id}?imageUrls=${imgUrls}`, {
           headers: {
-            'Authorization': `Bearer ${token}`
+              'Authorization': `Bearer ${token}`
+            , 'Content-Type' : 'application/json'
           }
         });
         navigate('/');
