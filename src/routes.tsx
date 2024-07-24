@@ -13,9 +13,6 @@ import CreatePost from './components/pages/Post/CreatePost';
 import PostDetail from './components/pages/Post/PostDetails';
 import UpdatePost from './components/pages/Post/UpdatePost';
 import PopularPosts from './components/pages/Post/PopularPosts';
-import ImageAnalysis from './components/pages/ImageAnalysis';
-import LawyerConsultationPage from './components/pages/LawyerConsulting/LawyerConsultationPage';
-import LawyerProfile from './components/pages/LawyerConsulting/LawyerProfile';
 
 
 const AppRoutes = () => {
@@ -37,9 +34,6 @@ const AppRoutes = () => {
       <Route path="/popularposts" element={<PopularPosts />} />
       <Route path="/posts/:id" element={<PostDetail />} />
       <Route path="/posts/update/:id" element={<UpdatePost />} />
-      <Route path="/imageAnalysis" element={<ImageAnalysis />} />
-      <Route path="/lawyer/consultation-request" element={<LawyerConsultationPage />} />
-      <Route path="/lawyer/lawyerprofile/:id" element={<LawyerProfile />} />
     </Routes>
   );
 };
