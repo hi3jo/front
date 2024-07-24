@@ -231,12 +231,12 @@ const ReservationContainer: React.FC<ReservationContainerProps> = ({ phoneConsul
               Authorization: `Bearer ${token}`
             }
           });
-
+  
           console.log('Server response:', response.data);
-
+  
           if (Array.isArray(response.data)) {
             const times = response.data
-              .filter((time: any) => time.reservations.length === 0)
+              .filter((time: any) => Array.isArray(time.reservations) && time.reservations.length === 0)
               .map((time: any) => {
                 const formattedDate = moment(time.date).format('YYYY-MM-DD');
                 const formattedStartTime = moment(time.startTime, 'HH:mm:ss').format('HH:mm');
@@ -256,10 +256,10 @@ const ReservationContainer: React.FC<ReservationContainerProps> = ({ phoneConsul
         }
       }
     };
-
+  
     fetchAvailableTimes();
   }, [user, id]);
-
+  
   const dates = Array.from({ length: 7 }, (_, i) => {
     const date = moment().add(i, 'days');
     const dayOfWeek = i === 0 ? '오늘' : date.format('dd').replace(/Mo|Tu|We|Th|Fr|Sa|Su/, (match) => {
