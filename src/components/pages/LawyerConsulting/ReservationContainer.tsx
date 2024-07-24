@@ -231,23 +231,22 @@ const ReservationContainer: React.FC<ReservationContainerProps> = ({ phoneConsul
               Authorization: `Bearer ${token}`
             }
           });
-  
+
           console.log('Server response:', response.data);
-  
+
           if (Array.isArray(response.data)) {
             const times = response.data
-              .filter((time: any) => time.reservations.length === 0) // 예약되지 않은 시간만 필터링
+              .filter((time: any) => time.reservations.length === 0)
               .map((time: any) => {
                 const formattedDate = moment(time.date).format('YYYY-MM-DD');
                 const formattedStartTime = moment(time.startTime, 'HH:mm:ss').format('HH:mm');
                 return {
                   id: time.id,
                   dateTime: `${formattedDate} ${formattedStartTime}`,
-                  type: time.phoneConsultation ? 'phone' : 'inPerson' as 'phone' | 'inPerson'
+                  type: time.phoneConsultation ? 'phone' : 'inPerson' as 'phone' | 'inPerson' // 타입 변환 추가
                 };
               })
-              .sort((a: any, b: any) => moment(a.dateTime).diff(moment(b.dateTime))); // 시간 순서로 정렬
-  
+              .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()); // 시간 순서로 정렬
             setAvailableTimes(times);
           } else {
             console.error('Expected an array but got:', response.data);
@@ -257,7 +256,7 @@ const ReservationContainer: React.FC<ReservationContainerProps> = ({ phoneConsul
         }
       }
     };
-  
+
     fetchAvailableTimes();
   }, [user, id]);
 
