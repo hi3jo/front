@@ -303,6 +303,49 @@ const ChatbotPage: React.FC = () => {
       }
 
       const data = await res.json();
+      setChatHistory(prevHistory => [...prevHistory, { user: chatBot, ai: '' }]);
+
+      let currentIndex = -1;
+      const intervalId = setInterval(() => {
+        currentIndex++;
+        if (data.answer && currentIndex < data.answer.length) {
+          setChatHistory(prev => {
+            const newHistory = [...prev];
+            newHistory[newHistory.length - 1].ai += data.answer[currentIndex];
+            return newHistory;
+          });
+        } else {
+          clearInterval(intervalId);
+          setLoading(false);
+        }
+      }, 20);
+
+      setHistoryList(prevList => {
+        const updatedList = prevList.map(item => {
+          if (item.id === currentHistoryId) {
+            return { ...item, lastChatBotDate: new Date().toISOString(), className: '' };
+          }
+          return item;
+        }).sort((a, b) => new Date(b.lastChatBotDate).getTime() - new Date(a.lastChatBotDate).getTime());
+        return updatedList;
+      });
+
+      console.log('Received response:', data.id);
+    } catch (error) {
+      console.error('Error:', error);
+      setLoading(false);
+      alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    }
+
+    setChatBot('');
+
+    try {
+      const res = await fetch(`http://localhost:8000/api/query-v3/?query_text=${encodeURIComponent(chatBot)}`);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
       const aiResponse = data.answer;
       setChatHistory(prevHistory => [...prevHistory, { user: chatBot, ai: '' }]);
 
