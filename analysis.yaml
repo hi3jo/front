@@ -1,0 +1,4 @@
+name: analysis
+channels:
+  - defaults
+prefix: C:\Users\user\miniconda3\envs\analysis

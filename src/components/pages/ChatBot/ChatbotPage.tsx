@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { FaPaperPlane } from 'react-icons/fa';
 import { ImSpinner3 } from 'react-icons/im';
-import { useAuth } from '../services/auth';
+import { useAuth } from '../../services/auth';
 import dayjs from 'dayjs'; // npm install dayjs --legacy-peer-deps
 
 interface HistoryItem {
@@ -270,17 +270,8 @@ const ChatbotPage: React.FC = () => {
     }
 
     const userId = user.id;
-
     const token = localStorage.getItem('token');
-
-    if (!token) {
-      console.error('No token found in localStorage');
-      return;
-    }
-
     let currentHistoryId = selectedHistoryId;
-
-    console.log('Before checking if null, currentHistoryId:', currentHistoryId);
 
     if (isHistoryIdNull(currentHistoryId)) {
       try {
@@ -298,58 +289,29 @@ const ChatbotPage: React.FC = () => {
         const data = await response.json();
         currentHistoryId = data;
         setSelectedHistoryId(currentHistoryId);
-
-        if (currentHistoryId !== null) {
-          const newHistory: HistoryItem = {
-            id: currentHistoryId,
-            firstChatBotAsk: chatBot,
-            lastChatBotDate: new Date().toISOString(),
-            className: 'enter'
-          };
-
-          setHistoryList(prevList => {
-            const updatedList = [...prevList, newHistory].sort((a, b) => new Date(b.lastChatBotDate).getTime() - new Date(a.lastChatBotDate).getTime());
-            return updatedList.map((item, index) => ({ ...item, className: index === 0 ? 'enter' : '' }));
-          });
-          setTimeout(() => {
-            setHistoryList(prevList => prevList.map(item => ({ ...item, className: '' })));
-          }, 500);
-
-          console.log('New history created with id:', currentHistoryId);
-        }
       } catch (error) {
         console.error('Error creating new history:', error);
       }
     }
 
-    console.log('After checking if null, currentHistoryId:', currentHistoryId);
-
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8080/api/chatbot/ask', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ ask: chatBot, user: { id: userId }, history: { id: currentHistoryId } })
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const res = await fetch(`http://localhost:8000/api/query-v3/?query_text=${encodeURIComponent(chatBot)}`);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
       }
-      const data = await response.json();
 
-      const aiResponse = data.answer;
+      const data = await res.json();
       setChatHistory(prevHistory => [...prevHistory, { user: chatBot, ai: '' }]);
 
       let currentIndex = -1;
       const intervalId = setInterval(() => {
         currentIndex++;
-        if (aiResponse && currentIndex < aiResponse.length) {
+        if (data.answer && currentIndex < data.answer.length) {
           setChatHistory(prev => {
             const newHistory = [...prev];
-            newHistory[newHistory.length - 1].ai += aiResponse[currentIndex];
+            newHistory[newHistory.length - 1].ai += data.answer[currentIndex];
             return newHistory;
           });
         } else {
@@ -376,6 +338,83 @@ const ChatbotPage: React.FC = () => {
     }
 
     setChatBot('');
+
+    try {
+      const res = await fetch(`http://localhost:8000/api/query-v3/?query_text=${encodeURIComponent(chatBot)}`);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
+      const aiResponse = data.answer;
+      setChatHistory(prevHistory => [...prevHistory, { user: chatBot, ai: '' }]);
+
+      let currentIndex = -1;
+      const intervalId = setInterval(() => {
+        currentIndex++;
+        if (aiResponse && currentIndex < aiResponse.length) {
+          setChatHistory(prev => {
+            const newHistory = [...prev];
+            newHistory[newHistory.length - 1].ai += aiResponse[currentIndex];
+            return newHistory;
+          });
+        } else {
+          clearInterval(intervalId);
+          setLoading(false);
+        }
+      }, 20);
+
+      setChatBot('');
+
+     // 질문 저장
+     try {
+      await fetch('http://localhost:8080/api/chatbot/ask', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ ask: chatBot, user: { id: userId }, history: { id: currentHistoryId } })
+          });
+      } catch (error) {
+          console.error('Error saving question:', error);
+      }
+
+    // 답변 저장
+    try {
+      // fetch 함수 사용하여 서버에 HTTP POST 요청을 보냅니다.
+      const response = await fetch('http://localhost:8080/api/chatbot/answer', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json', // 전송하는 데이터의 타입은 JSON입니다.
+              'Authorization': `Bearer ${token}` // Authorization 헤더에 Bearer 토큰을 추가하여 인증 정보를 보냅니다.
+          },
+          body: JSON.stringify({ ask: chatBot, answer: aiResponse, history: { id: currentHistoryId } }) // 요청 본문(body)에 JSON 형식의 데이터를 포함
+      });
+      // 서버의 응답 상태가 OK(200-299)가 아니면 에러를 발생시킵니다.
+      if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    } catch (error) {
+        // 요청 중 에러가 발생하면 콘솔에 에러 메시지를 출력합니다.
+        console.error('Error saving answer:', error);
+    }
+
+      setHistoryList(prevList => {
+        const updatedList = prevList.map(item => {
+          if (item.id === currentHistoryId) {
+            return { ...item, lastChatBotDate: new Date().toISOString(), className: '' };
+          }
+          return item;
+        }).sort((a, b) => new Date(b.lastChatBotDate).getTime() - new Date(a.lastChatBotDate).getTime());
+        return updatedList;
+      });
+
+    } catch (error) {
+      console.error('Error:', error);
+      setLoading(false);
+      alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    }
   };
 
   const handleHistoryClick = async (historyId: number) => {
@@ -415,6 +454,7 @@ const ChatbotPage: React.FC = () => {
       messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [chatHistory]);
+
 
   return (
     <>

@@ -131,7 +131,6 @@ const PaginationContainer = styled.div`
 
 const SearchContainer = styled.div`
   display: flex;
-  
   justify-content: center;
   margin-top: 20px;
   height: 2.4rem;
@@ -203,6 +202,14 @@ const PostWrite = styled.button`
   &:hover {
     background-color: #0056b3;
   }
+`
+
+const PostCon2 = styled.div`
+  margin-top: 1rem;
+  diplsay:flex;
+  width: 100%;
+  height: 50rem;
+  border: 1px solid #999;
 `
 
 const PostList: React.FC = () => {
@@ -304,9 +311,18 @@ const PostList: React.FC = () => {
     setCurPage(prevGroupFirstPage);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return isToday(date) ? format(date, 'HH:mm') : format(date, 'yyyy-MM-dd');
+  const formatDate = (dateString: string): string => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        console.error('Invalid date:', dateString);
+        return 'Invalid date';
+      }
+      return format(date, 'yyyy-MM-dd HH:mm:ss');
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid date';
+    }
   };
 
   return (
@@ -384,6 +400,7 @@ const PostList: React.FC = () => {
         </PostListContainer>
         <SideContainer>
           <PostWrite onClick={handleCreatePostClick}>커뮤니티 글쓰기</PostWrite>
+          <PostCon2>추가 사이드바</PostCon2>
         </SideContainer>
       </PageContainer>
     </div>
