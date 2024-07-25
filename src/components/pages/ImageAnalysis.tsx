@@ -184,12 +184,6 @@ const ImageAnalysis = () => {
     }
   };
 
-  const handleFilesChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFiles2(Array.from(e.target.files));
-    }
-  };
-
   const handleSubmit1 = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file1) {
@@ -250,60 +244,71 @@ const ImageAnalysis = () => {
   const handleSubmit2 = async (e: React.FormEvent) => {
     e.preventDefault();
     if (files2.length === 0) {
-      console.error('No files selected');
-      return;
+        console.error('No files selected');
+        return;
     }
 
     const token = localStorage.getItem('token');
     if (!token) {
-      console.error('No token found');
-      return;
+        console.error('No token found');
+        return;
     }
 
     try {
-      for (const file of files2) {
         const formData = new FormData();
-        formData.append('file', file);
+        for (const file of files2) {
+            formData.append('file', file); // 'files'를 'file'로 변경
 
-        const res = await axios.post('http://localhost:8080/api/textImgAna/upload', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
+            const res = await axios.post('http://localhost:8080/api/textImgAna/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
 
-        console.log('Response:', res.data);  // 응답 데이터 확인
+            console.log('Response:', res.data);  // 응답 데이터 확인
 
-        const date = new Date().toISOString();
-        const responseText = res.data;
-        const answerMatch = responseText.match(/분석결과: (.*?),/);
-        const isPossibleMatch = responseText.match(/증거채택여부: (.*?),/);
+            const date = new Date().toISOString();
+            const responseText = res.data;
+            const answerMatch = responseText.match(/분석결과: (.*?),/);
+            const isPossibleMatch = responseText.match(/증거채택여부: (.*?),/);
 
-        const answer = answerMatch ? answerMatch[1] : '';
-        const isPossible = isPossibleMatch ? isPossibleMatch[1] === 'True' : false;
+            const answer = answerMatch ? answerMatch[1] : '';
+            const isPossible = isPossibleMatch ? isPossibleMatch[1] === 'True' : false;
 
-        // 분석결과가 'normal'이 아닌 경우에만 업로드된 이미지 목록에 추가
-        if (answer !== 'normal') {
-          setUploadedImages((prevImages) => [...prevImages, { src: URL.createObjectURL(file), result: answer, date }]);
+            // 분석결과가 ''이 아닌 경우에만 업로드된 이미지 목록에 추가
+            if (isPossible) {
+                const fileSrc = URL.createObjectURL(file); // 'file'을 루프 외부에서 사용하기 위해 상수로 할당
+                setUploadedImages((prevImages) => [
+                    ...prevImages,
+                    { src: fileSrc, result: answer, date },
+                ]);
+            }
         }
-      }
     } catch (error: any) {
-      if (error.response) {
-        console.error('Error response data:', error.response.data);
-        console.error('Error response status:', error.response.status);
-        console.error('Error response headers:', error.response.headers);
-      } else if (error.request) {
-        console.error('Error request:', error.request);
-      } else {
-        console.error('Error message:', error.message);
-      }
+        if (error.response) {
+            console.error('Error response data:', error.response.data);
+            console.error('Error response status:', error.response.status);
+            console.error('Error response headers:', error.response.headers);
+        } else if (error.request) {
+            console.error('Error request:', error.request);
+        } else {
+            console.error('Error message:', error.message);
+        }
     }
 
     setFiles2([]);
     if (fileInputRef2.current) {
-      fileInputRef2.current.value = '';
+        fileInputRef2.current.value = '';
     }
   };
+
+  const handleFilesChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files) {
+        setFiles2(Array.from(e.target.files));
+      }
+  };
+
 
   const handlePrint = () => {
     if (!imageListRef.current) return;
