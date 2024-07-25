@@ -12,7 +12,7 @@ const FooterContainer = styled.footer`
 const Footer = () => {
   return (
     <FooterContainer>
-      &copy; {new Date().getFullYear()} Hi AI3조
+      &copy; {new Date().getFullYear()} H    I AI3 조
     </FooterContainer>
   );
 };

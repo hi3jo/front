@@ -35,13 +35,13 @@ const CustomNavLink = styled(RouterNavLink)`
 
 const NavLinks = styled.div`
   display: flex;
-  gap: 2rem;
+  gap: 1.1rem;
   font-weight: 600;
   padding: 1rem;
   font-size: 1.2rem;
   margin-left: 2rem;
 
-  @media (max-width: 768px) {
+  @media (max-width: 1000px) {
     display: none;
   }
 `;
@@ -101,6 +101,7 @@ const Navbar = () => {
           <StyledButton as={RouterNavLink} to="/image">이미지 생성</StyledButton>
           <StyledButton as={RouterNavLink} to="/imageAnalysis">이미지 분석</StyledButton>
           <StyledButton as={RouterNavLink} to="/post">커뮤니티</StyledButton>
+          <StyledButton as={RouterNavLink} to="/lawyer/consultation-request">변호사 상담</StyledButton>
         </NavLinks>
       </LeftContainer>
       <AuthLinks>
