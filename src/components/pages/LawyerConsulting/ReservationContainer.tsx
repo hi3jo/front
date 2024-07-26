@@ -138,6 +138,12 @@ const TimeButton = styled.button<{ $isSelected: boolean }>`
     background-color: #ff69b4;
     color: white;
   }
+
+  &:disabled {
+    background-color: #ccc;
+    color: white;
+    cursor: not-allowed;
+  }
 `;
 
 const TimeSelectionWrapper = styled.div`
@@ -203,6 +209,7 @@ type LawyerAvailableTime = {
   id: number;
   dateTime: string;
   type: 'phone' | 'inPerson';
+  reserved?: boolean; // 예약 여부
 };
 
 const ReservationContainer: React.FC<ReservationContainerProps> = ({ phoneConsultationPrice, inPersonConsultationPrice, onClose }) => {
@@ -231,22 +238,20 @@ const ReservationContainer: React.FC<ReservationContainerProps> = ({ phoneConsul
               Authorization: `Bearer ${token}`
             }
           });
-  
-          console.log('Server response:', response.data);
-  
+
           if (Array.isArray(response.data)) {
             const times = response.data
-              .filter((time: any) => Array.isArray(time.reservations) && time.reservations.length === 0)
               .map((time: any) => {
                 const formattedDate = moment(time.date).format('YYYY-MM-DD');
                 const formattedStartTime = moment(time.startTime, 'HH:mm:ss').format('HH:mm');
                 return {
                   id: time.id,
                   dateTime: `${formattedDate} ${formattedStartTime}`,
-                  type: time.phoneConsultation ? 'phone' : 'inPerson' as 'phone' | 'inPerson' // 타입 변환 추가
+                  type: time.phoneConsultation ? 'phone' : 'inPerson' as 'phone' | 'inPerson',
+                  reserved: time.reservations && time.reservations.length > 0 // 예약 여부 확인
                 };
               })
-              .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()); // 시간 순서로 정렬
+              .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
             setAvailableTimes(times);
           } else {
             console.error('Expected an array but got:', response.data);
@@ -256,10 +261,10 @@ const ReservationContainer: React.FC<ReservationContainerProps> = ({ phoneConsul
         }
       }
     };
-  
+
     fetchAvailableTimes();
   }, [user, id]);
-  
+
   const dates = Array.from({ length: 7 }, (_, i) => {
     const date = moment().add(i, 'days');
     const dayOfWeek = i === 0 ? '오늘' : date.format('dd').replace(/Mo|Tu|We|Th|Fr|Sa|Su/, (match) => {
@@ -279,9 +284,11 @@ const ReservationContainer: React.FC<ReservationContainerProps> = ({ phoneConsul
 
   const getFilteredTimes = () => {
     if (!selectedDate) return [];
-    return availableTimes
+    const filteredTimes = availableTimes
       .filter(time => time.dateTime.startsWith(selectedDate) && time.type === consultationType)
-      .map(time => time.dateTime.split(' ')[1]);
+      .map(time => ({ time: time.dateTime.split(' ')[1], reserved: time.reserved }));
+
+    return filteredTimes;
   };
 
   const getAvailableDates = (type: 'phone' | 'inPerson') => {
@@ -300,9 +307,9 @@ const ReservationContainer: React.FC<ReservationContainerProps> = ({ phoneConsul
       const token = localStorage.getItem('token');
       try {
         const endTime = moment(selectedTime, 'HH:mm').add(30, 'minutes').format('HH:mm');
-        const selectedAvailableTime = availableTimes.find(time => 
-          time.dateTime.startsWith(selectedDate) && 
-          time.dateTime.includes(selectedTime) && 
+        const selectedAvailableTime = availableTimes.find(time =>
+          time.dateTime.startsWith(selectedDate) &&
+          time.dateTime.includes(selectedTime) &&
           time.type === consultationType
         );
         if (!selectedAvailableTime) {
@@ -447,11 +454,12 @@ const ReservationContainer: React.FC<ReservationContainerProps> = ({ phoneConsul
         </Section>
         {sections.showTimeSelection && (
           <TimeSelectionWrapper>
-            {getFilteredTimes().map((time) => (
+            {getFilteredTimes().map(({ time, reserved }) => (
               <TimeButton
                 key={time}
                 $isSelected={selectedTime === time}
                 onClick={() => toggleTimeSelection(time)}
+                disabled={reserved} // 예약된 시간 비활성화
               >
                 {time}
               </TimeButton>
