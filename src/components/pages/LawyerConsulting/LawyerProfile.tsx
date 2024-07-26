@@ -7,13 +7,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
 import AvailableTimeContainer from './AvailableTimeContainer';
 import ReservationContainer from './ReservationContainer';
+import ReviewForm from './ReviewForm';
+import StarRating from './StarRating';
 
 const ConCon = styled.div`
   height: 60rem;
 `;
 
 const Container = styled.div`
-  overflow-x:hidden;
+  overflow-x: hidden;
   justify-content: center;
 
   @media (max-width: 860px) {
@@ -33,11 +35,11 @@ const LeftContainer = styled.div`
 `;
 
 const RightContainer = styled.div`
-  display:inline-flex;
+  display: inline-flex;
   flex-direction: column;
   height: 90vh;
   padding-top: 15px;
-  padding-botton: 15px;
+  padding-bottom: 15px;
   width: 498px;
   position: fixed;
 
@@ -66,7 +68,7 @@ const ProfileName = styled.div`
   margin-top: 3rem;
   font-weight: bold;
   font-size: 1.7rem;
-`
+`;
 
 const Value = styled.span`
   margin-right: 0.5rem;
@@ -109,7 +111,7 @@ const ProfileCard = styled.div`
   border-top-right-radius: 10px;
   padding: 20px 40px;
   color: white;
-`
+`;
 
 const ProfileImage = styled.img`
   max-width: 100%;
@@ -127,17 +129,17 @@ const ReservationCon = styled.div`
   border: 1px solid #ecf0f4;
   background-color: #fff;
   box-shadow: 0px 2px 16px 0px rgba(0, 0, 0, 0.08);
-`
+`;
 
 const ReservationHidden = styled.div<{ $isContainerOpen: boolean }>`
   display: ${({ $isContainerOpen }) => ($isContainerOpen ? 'none' : 'block')};
-`
+`;
 
 const ReservationPriceCon = styled.div`
   justify-content: center;
   display: flex;
   flex-direction: row;
-`
+`;
 
 const ReservationPrice = styled.div`
   align-items: center;
@@ -145,14 +147,14 @@ const ReservationPrice = styled.div`
   margin-top: 1.5rem;
   gap: 0.8rem;
   width: 100%;
-  display:flex;
+  display: flex;
   padding: 0 24px;
-`
+`;
 
 const ReservationButton = styled.button`
   background-color: #ff69b4;
   align-items: center;
-  border:none;
+  border: none;
   width: 100%;
   height: 3rem;
   font-size: 1.6rem;
@@ -160,13 +162,13 @@ const ReservationButton = styled.button`
   border-radius: 10px;
   margin: 30px 0;
   cursor: pointer;
-`
+`;
 
 const Row = styled.div`
   margin-top: 1.3rem;
   border: 1px solid #ccc;
   height: 5rem;
-`
+`;
 
 const MobileView = styled.div`
   display: none;
@@ -178,12 +180,13 @@ const MobileView = styled.div`
 
 const LawyerProfile: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
-  const { id } = useParams<{ id?: string }>();
+  const { id } = useParams<{ id: string }>();
   const [profile, setProfile] = useState<any>(null);
   const [editField, setEditField] = useState<string | null>(null);
   const [fieldValue, setFieldValue] = useState<string>('');
   const [isContainerOpen, setIsContainerOpen] = useState<boolean>(false);
   const [isReservationOpen, setIsReservationOpen] = useState<boolean>(false);
+  const [averageRating, setAverageRating] = useState<number>(0);
 
   const handleOpen = () => {
     setIsContainerOpen(true);
@@ -191,7 +194,7 @@ const LawyerProfile: React.FC = () => {
 
   const handleReservationOpen = () => {
     setIsReservationOpen(true);
-  }
+  };
 
   const handleClose = () => {
     setIsContainerOpen(false);
@@ -205,7 +208,7 @@ const LawyerProfile: React.FC = () => {
 
       try {
         const response = await axios.get(`http://localhost:8080/api/lawyer/profile/${id}`, {
-          headers
+          headers,
         });
         setProfile(response.data);
       } catch (error) {
@@ -218,6 +221,24 @@ const LawyerProfile: React.FC = () => {
     };
 
     fetchProfile();
+  }, [id]);
+
+  useEffect(() => {
+    const fetchAverageRating = async () => {
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      try {
+        const response = await axios.get(`http://localhost:8080/api/reviews/lawyer/${id}/average`, {
+          headers,
+        });
+        setAverageRating(response.data);
+      } catch (error) {
+        console.error('평균 평점 가져오기 실패', error);
+      }
+    };
+    if (id) {
+      fetchAverageRating();
+    }
   }, [id]);
 
   const handleEdit = (field: string) => {
@@ -240,14 +261,14 @@ const LawyerProfile: React.FC = () => {
         if (profile && Object.keys(profile).length > 0) {
           response = await axios.put(`http://localhost:8080/api/lawyer/profile/${id}`, updatedProfile, {
             headers: {
-              Authorization: `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+            },
           });
         } else {
           response = await axios.post('http://localhost:8080/api/lawyer/profile', updatedProfile, {
             headers: {
-              Authorization: `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+            },
           });
         }
         setProfile(response.data);
@@ -268,7 +289,7 @@ const LawyerProfile: React.FC = () => {
           <ProfileField>
             {editField === 'title' ? (
               <>
-                <Input value={fieldValue || ""} onChange={(e) => setFieldValue(e.target.value)} />
+                <Input value={fieldValue || ''} onChange={(e) => setFieldValue(e.target.value)} />
                 <SaveButton onClick={handleSave}>저장</SaveButton>
               </>
             ) : (
@@ -283,14 +304,14 @@ const LawyerProfile: React.FC = () => {
           <ProfileField>
             {editField === 'name' ? (
               <>
-                <Input value={fieldValue || ""} onChange={(e) => setFieldValue(e.target.value)} />
+                <Input value={fieldValue || ''} onChange={(e) => setFieldValue(e.target.value)} />
                 <SaveButton onClick={handleSave}>저장</SaveButton>
               </>
             ) : (
               <>
                 <ProfileName>{profile ? profile.name : '변호사 이름'}</ProfileName>
                 {isAuthenticated && userIdNumber === userNumberId && (
-                  <EditIcon icon={faPen} onClick={() => handleEdit('name')} style={{ marginTop: '2.7rem'}}/>
+                  <EditIcon icon={faPen} onClick={() => handleEdit('name')} style={{ marginTop: '2.7rem' }} />
                 )}
               </>
             )}
@@ -299,7 +320,7 @@ const LawyerProfile: React.FC = () => {
             <Label>법무법인</Label>
             {editField === 'address' ? (
               <>
-                <Input value={fieldValue || ""} onChange={(e) => setFieldValue(e.target.value)} />
+                <Input value={fieldValue || ''} onChange={(e) => setFieldValue(e.target.value)} />
                 <SaveButton onClick={handleSave}>저장</SaveButton>
               </>
             ) : (
@@ -315,7 +336,7 @@ const LawyerProfile: React.FC = () => {
             <Label>사무실 전화</Label>
             {editField === 'phoneNumber' ? (
               <>
-                <Input value={fieldValue || ""} onChange={(e) => setFieldValue(e.target.value)} />
+                <Input value={fieldValue || ''} onChange={(e) => setFieldValue(e.target.value)} />
                 <SaveButton onClick={handleSave}>저장</SaveButton>
               </>
             ) : (
@@ -330,7 +351,7 @@ const LawyerProfile: React.FC = () => {
           <ProfileField>
             {editField === 'content' ? (
               <>
-                <Input value={fieldValue || ""} onChange={(e) => setFieldValue(e.target.value)} />
+                <Input value={fieldValue || ''} onChange={(e) => setFieldValue(e.target.value)} />
                 <SaveButton onClick={handleSave}>저장</SaveButton>
               </>
             ) : (
@@ -342,11 +363,19 @@ const LawyerProfile: React.FC = () => {
               </>
             )}
           </ProfileField>
+          <div>
+            <h2>평균 평점</h2>
+            <StarRating rating={averageRating} />
+          </div>
+          <div>
+            <h2>리뷰 작성</h2>
+            <ReviewForm lawyerId={id!} />
+          </div>
           <ConCon></ConCon>
         </LeftContainer>
         <RightContainer>
           <ProfileCard>
-            <div style={{ fontSize: '2rem', marginBottom: '10px'}}>{profile?.name}</div>
+            <div style={{ fontSize: '2rem', marginBottom: '10px' }}>{profile?.name}</div>
             <div>법무법인 갈림길</div>
           </ProfileCard>
           <ProfileImage src="/images/kevin.jpeg" alt="Profile" />
@@ -355,50 +384,50 @@ const LawyerProfile: React.FC = () => {
               <ReservationHidden $isContainerOpen={isContainerOpen}>
                 <ReservationPriceCon>
                   <ReservationPrice>
-                      <div>15분 전화상담</div>
-                      <ProfileField>
-                        {editField === 'phoneConsultationPrice' ? (
-                          <>
-                            <Input value={fieldValue || ""} onChange={(e) => setFieldValue(e.target.value)} />
-                            <SaveButton onClick={handleSave}>저장</SaveButton>
-                          </>
-                        ) : (
-                          <>
-                            <Value style={{ fontSize: '1.2rem', fontWeight: 'bold'}}>
-                              {profile ? profile.phoneConsultationPrice : ''}원
-                            </Value>
-                            {isAuthenticated && userIdNumber === userNumberId && (
-                              <EditIcon icon={faPen} onClick={() => handleEdit('phoneConsultationPrice')} />
-                            )}
-                          </>
-                        )}
-                      </ProfileField>
+                    <div>15분 전화상담</div>
+                    <ProfileField>
+                      {editField === 'phoneConsultationPrice' ? (
+                        <>
+                          <Input value={fieldValue || ''} onChange={(e) => setFieldValue(e.target.value)} />
+                          <SaveButton onClick={handleSave}>저장</SaveButton>
+                        </>
+                      ) : (
+                        <>
+                          <Value style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
+                            {profile ? profile.phoneConsultationPrice : ''}원
+                          </Value>
+                          {isAuthenticated && userIdNumber === userNumberId && (
+                            <EditIcon icon={faPen} onClick={() => handleEdit('phoneConsultationPrice')} />
+                          )}
+                        </>
+                      )}
+                    </ProfileField>
                   </ReservationPrice>
                   <Row />
                   <ReservationPrice>
-                      <div style={{ color:'#ccc'}}>20분 영상상담</div>
-                      <div style={{ color:'#ccc', fontSize: '1.2rem', fontWeight: 'bold'}}>-</div>
+                    <div style={{ color: '#ccc' }}>20분 영상상담</div>
+                    <div style={{ color: '#ccc', fontSize: '1.2rem', fontWeight: 'bold' }}>-</div>
                   </ReservationPrice>
                   <Row />
                   <ReservationPrice>
-                      <div>30분 방문상담</div>
-                      <ProfileField>
-                        {editField === 'inPersonConsultationPrice' ? (
-                          <>
-                            <Input value={fieldValue || ""} onChange={(e) => setFieldValue(e.target.value)} />
-                            <SaveButton onClick={handleSave}>저장</SaveButton>
-                          </>
-                        ) : (
-                          <>
-                            <Value style={{ fontSize: '1.2rem', fontWeight: 'bold'}}>
-                              {profile ? profile.inPersonConsultationPrice : ''}원
-                            </Value>
-                            {isAuthenticated && userIdNumber === userNumberId && (
-                              <EditIcon icon={faPen} onClick={() => handleEdit('inPersonConsultationPrice')} />
-                            )}
-                          </>
-                        )}
-                      </ProfileField>
+                    <div>30분 방문상담</div>
+                    <ProfileField>
+                      {editField === 'inPersonConsultationPrice' ? (
+                        <>
+                          <Input value={fieldValue || ''} onChange={(e) => setFieldValue(e.target.value)} />
+                          <SaveButton onClick={handleSave}>저장</SaveButton>
+                        </>
+                      ) : (
+                        <>
+                          <Value style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
+                            {profile ? profile.inPersonConsultationPrice : ''}원
+                          </Value>
+                          {isAuthenticated && userIdNumber === userNumberId && (
+                            <EditIcon icon={faPen} onClick={() => handleEdit('inPersonConsultationPrice')} />
+                          )}
+                        </>
+                      )}
+                    </ProfileField>
                   </ReservationPrice>
                 </ReservationPriceCon>
                 {isAuthenticated ? (
@@ -410,7 +439,7 @@ const LawyerProfile: React.FC = () => {
                 ) : (
                   <ReservationButton onClick={() => alert('상담 예약은 로그인 후 가능합니다.')}>로그인 필요</ReservationButton>
                 )}
-            </ReservationHidden>
+              </ReservationHidden>
             )}
             {isContainerOpen && (
               <AvailableTimeContainer
@@ -420,7 +449,11 @@ const LawyerProfile: React.FC = () => {
               />
             )}
             {isReservationOpen && (
-              <ReservationContainer onClose={handleClose} phoneConsultationPrice={profile.phoneConsultationPrice} inPersonConsultationPrice={profile.inPersonConsultationPrice} />
+              <ReservationContainer
+                onClose={handleClose}
+                phoneConsultationPrice={profile.phoneConsultationPrice}
+                inPersonConsultationPrice={profile.inPersonConsultationPrice}
+              />
             )}
           </ReservationCon>
         </RightContainer>
@@ -432,4 +465,5 @@ const LawyerProfile: React.FC = () => {
     </>
   );
 };
+
 export default LawyerProfile;
