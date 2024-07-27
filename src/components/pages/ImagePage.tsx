@@ -1,6 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { FaPaperPlane } from 'react-icons/fa';
+import { useAuth } from '../services/auth';
+import dayjs from 'dayjs'; // npm install dayjs --legacy-peer-deps
+
+interface HistoryItem {
+  id: number;
+  story:string;
+  reg_date: string;
+  className?: string;
+}
 
 const GlobalStyle = createGlobalStyle`
   html, body {
@@ -226,28 +235,157 @@ const DownloadButton = styled.a`
   }
 `;
 
+const HistorySection = styled.div`
+  margin-bottom: 2rem;
+`;
+
+const HistoryItemStyled = styled.div`
+  
+  overflow: hidden; 
+  display: -webkit-box; 
+  -webkit-box-orient: vertical; 
+  -webkit-line-clamp: 2; 
+  line-height: 1.2em; /* 줄 높이를 설정 */
+  max-height: 3em; /* 최대 높이 설정 */
+  white-space: normal; 
+  text-overflow: ellipsis; 
+  
+  padding: 0.5rem;
+  cursor: pointer;
+  border-bottom: 1px solid #495057;
+  transition: transform 0.6s ease, opacity 0.6s ease;
+
+  &:hover {
+    background: #495057;
+  }
+
+  &.enter {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  }
+
+  &.enter-active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  &.exit {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  &.exit-active {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+`;
 const ChatbotPage = () => {
-  const [story, setStory] = useState('이혼을 원하는 사유를 4개의 단락으로 나눠주세요 :\n\n1. 초기 문제\n\n2. 갈등의 심화\n\n3. 결정적인 사건\n\n4. 결론 및 감정');
+//const [story, setStory] = useState('이혼을 원하는 사유를 4개의 단락으로 나눠주세요 :\n\n1. 초기 문제\n\n2. 갈등의 심화\n\n3. 결정적인 사건\n\n4. 결론 및 감정');
+  const [story, setStory] = useState('');
+  // 기존에 사용자가 입력한 사연을 출력 부분
   const [chatHistory, setChatHistory] = useState<{ user: string, ai: string, image: string }[]>([]);
+  // 변경 된 사연출력 부분
+  const [historyList, setHistoryList] = useState<HistoryItem[]>([]);
+  const [selectedHistoryId, setSelectedHistoryId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const messageEndRef = useRef<HTMLDivElement | null>(null);
   const [modalShow, setModalShow] = useState(false);
   const [selectedImage, setSelectedImage] = useState('');
+  const { user } = useAuth();
+
+  const fetchUserHistory = async () => {
+
+    const userId = user ? user.id : null;             // user가 없을 경우 null로 설정
+
+    if (userId) {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch(`http://localhost:8080/api/webtoon/story?userId=${userId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+       
+        const data: HistoryItem[] = await response.json();
+        
+        data.sort((a, b) => new Date(b.reg_date).getTime() - new Date(a.reg_date).getTime());
+        
+        setHistoryList(data.map(item => ({ ...item, className: '' })));
+      } catch (err) {
+        console.error('Error fetching history:', err);
+      }
+    }else{
+
+      //이미지 생성은 로그인하지 않아도 할 수 있음.
+      if (!userId) {
+        console.log('User is not authenticated');
+        alert("비로그인 시 사연은 저장되지 않습니다.");
+        //return;
+      }
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setStory(e.target.value);
   };
 
+  //사연 입력 후 비행기 아이콘 클릭.
   const handleSubmit = async (e: React.FormEvent) => {
+    
     e.preventDefault();
-    setLoading(true);           // 로딩 시작
+
+    //로그인 여부 체크
+    if (!user) {
+      console.log('User is not authenticated');
+      //return;
+    }
+    
+    setLoading(true);                                         // 로딩 시작
+    
+    const userId = user ? user.id : null;
+    const token = localStorage.getItem('token');
+    let currentHistoryId = selectedHistoryId;
+
+    //1.사연 저장
+    if (userId && userId !== '') {
+      try {
+        
+        const response = await fetch('http://localhost:8080/api/webtoon/stories', {
+              method: 'POST'
+            , headers: {
+                'Content-Type' : 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+            , body: JSON.stringify({ story: story })
+        });
+
+        // 응답이 성공적이지 않은 경우 에러 처리
+        if (!response.ok) {
+          const errorMessage = await response.text(); // 서버에서 반환한 오류 메시지
+          console.error('Error saving story:', errorMessage);
+          setLoading(false); // 로딩 종료
+          return; // 에러 발생 시 함수 종료
+        }
+
+      } catch (error) {
+          
+        console.error('Error saving question:', error);
+        setLoading(false);
+      }
+    } else
+      console.warn('User ID is null or empty, skipping story save.');
+
+    //2.웹툰 생성
     try {
+      
       const res = await fetch(
         'http://localhost:8000/api/generate-webtoon',
         {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ story })
+            method: 'POST'
+          , headers: { 'Content-Type': 'application/json' }
+          , body: JSON.stringify({ story })
         }
       );
 
@@ -274,10 +412,81 @@ const ChatbotPage = () => {
   };
 
   useEffect(() => {
+
+    fetchUserHistory();
     if (messageEndRef.current) {
       messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [chatHistory]);
+  }, [chatHistory, user]);
+
+  const categorizeHistory = (historyList: HistoryItem[]) => {
+    
+    const today = dayjs();
+    const yesterday = today.subtract(1, 'day');
+    const last7Days = today.subtract(7, 'day');
+    const last30Days = today.subtract(30, 'day');
+
+    return historyList.reduce((acc, history) => {
+      
+      const date = dayjs(history.reg_date);
+      
+      if (date.isSame(today, 'day')) {
+        acc['오늘'].push(history);
+      } else if (date.isSame(yesterday, 'day')) {
+        acc['어제'].push(history);
+      } else if (date.isAfter(last7Days)) {
+        acc['지난 7일'].push(history);
+      } else if (date.isAfter(last30Days)) {
+        acc['지난 30일'].push(history);
+      } else {
+        acc['옛날'].push(history);
+      }
+
+      return acc;
+    }, {
+      '오늘': [],
+      '어제': [],
+      '지난 7일': [],
+      '지난 30일': [],
+      '옛날': [],
+    } as Record<string, HistoryItem[]>);
+  };
+
+  const categorizedHistory = categorizeHistory(historyList);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // 기본 엔터 키 동작 방지
+      handleSubmit(e as any); // 이벤트를 submit 함수에 전달
+    }
+  };
+
+  const handleHistoryClick = async (historyId: number) => {
+    setSelectedHistoryId(historyId);
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:8080/api/chatbot/history/questions?historyId=${historyId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setChatHistory(
+        data.map((chatBot: { ask: string; answer: string }) => ({
+          user: chatBot.ask,
+          ai: chatBot.answer,
+        }))
+      );
+      await fetchUserHistory(); // 히스토리를 다시 불러와서 정렬
+    } catch (error) {
+      console.error('Error fetching history questions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleImageClick = (image: string) => {
     setSelectedImage(image);
@@ -288,12 +497,33 @@ const ChatbotPage = () => {
     <>
       <GlobalStyle />
       <Container>
-        <HistoryContainer>
-          <h2>History</h2>
+        {/* 
+        <HistoryContainer> 
+        <h2>History</h2> 
+          {/* <h2>히스토리</h2>
           {chatHistory.map((chat, index) => (
             <HistoryItem key={index}>
               {chat.user}
             </HistoryItem>
+          ))}
+        </HistoryContainer> 
+        */}
+        <HistoryContainer>
+          <h2>히스토리</h2>
+          {Object.entries(categorizedHistory).map(([category, histories]) => (
+            <HistorySection key={category}>
+              <h3>{category}</h3>
+              {histories.map(history => (
+                <HistoryItemStyled
+                  key={history.id}
+                  onClick={() => handleHistoryClick(history.id)}
+                  className={history.className}
+                >
+                  {/* {history.firstChatBotAsk} */}
+                  {history.story}
+                </HistoryItemStyled>
+              ))}
+            </HistorySection>
           ))}
         </HistoryContainer>
         <ChatbotContainer>
@@ -306,7 +536,7 @@ const ChatbotPage = () => {
             {chatHistory.length === 0 && (
               <>
                 <WelcomeMessage>당신의 이야기를 웹툰으로 만들어 드립니다.</WelcomeMessage>
-                <WelcomeMessage>카톡 채팅처럼 영역을 가지고 웹툰을 그리고자 하는 사연의 초반 부를 적어주세요.</WelcomeMessage>
+                <WelcomeMessage>카톡 채팅처럼 영역을 가지고 웹툰을 그리고자 하는 사연을 적어주세요.</WelcomeMessage>
               </>
             )}
             {chatHistory.map((chat, index) => (
@@ -333,6 +563,7 @@ const ChatbotPage = () => {
               <InputField
                 value={story}
                 onChange={handleInputChange}
+                onKeyDown={handleKeyDown} // 엔터 키 입력 감지
                 placeholder="사연을 입력해주세요."
               />
               <IconButton type="submit">

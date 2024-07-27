@@ -117,16 +117,39 @@ const UpdatePost: React.FC = () => {
     }
   };
 
+  // 수정 이벤트
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+    
     e.preventDefault();
     const token = localStorage.getItem('token');
+    
+    const formData = new FormData();
+    // 1.제목과 내용 추가
+    formData.append('title', title);
+    formData.append('content', content);
+    // 2.삭제된 이미지 URL 추가
+    deletedImages.forEach(url => { formData.append('deletedImages', url); });
+    // 3.새로운 이미지 파일 추가
+    if (imageFiles)
+      for (let i = 0; i < imageFiles.length; i++)
+        formData.append('uptImageUrls', imageFiles[i]);
+    
     try {
       // 삭제된 이미지 URL을 포함하여 업데이트 요청
-      await axios.put(`http://localhost:8080/api/posts/${id}`, { title, content, deletedImages }, {
+      /* await axios.put(`http://localhost:8080/api/posts/${id}`, { title, content, deletedImages, imageFiles}, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }); */
+
+      // 업데이트 요청
+      await axios.put(`http://localhost:8080/api/posts/${id}`, formData, {
         headers: {
-          'Authorization': `Bearer ${token}`
+              'Authorization' : `Bearer ${token}`
+            , 'Content-Type'  : 'multipart/form-data'
         }
       });
+
       navigate(`/posts/${id}`);
     } catch (error) {
       console.error('Failed to update post:', error);
