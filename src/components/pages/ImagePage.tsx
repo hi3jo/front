@@ -221,9 +221,6 @@ const CloseButton = styled.span`
 `;
 
 const DownloadButton = styled.a`
-  position: absolute;
-  bottom: -10px;
-  left: 144px;
   padding: 5px 10px;
   color: white;
   background-color: #007bff;
@@ -235,10 +232,9 @@ const DownloadButton = styled.a`
   }
 `;
 
-// 스타일 컴포넌트
 const ButtonContainer = styled.div`
   display: flex;
-  justify-content: center; /* 버튼을 가운데 정렬 */
+  justify-content: left; /* 버튼을 가운데 정렬 */
   margin-top: 10px; /* 이미지와 버튼 간격 조정 */
 `;
 
@@ -517,18 +513,25 @@ const ChatbotPage = () => {
     setModalShow(true);
   };
 
-  const handlePostClick =  async(image : string, story : string) => {
+  //게시글 작성 버튼 클릭 시.
+  const handlePostClick =  async(imageUrl : string, story : string) => {
     
+    // 이미지 데이터를 가져오기
+    const response = await fetch(imageUrl);
+    const blob     = await response.blob();
+    
+    // Blob을 사용하여 File 객체 생성
+    const file = new File([blob], `webtoon_${story}.png`, { type: blob.type });
+
     const postWindow = window.open('http://localhost:3000/createpost', '_blank');
 
     // postWindow가 null인지 확인
     if (postWindow) {
       postWindow.onload = () => {
-        postWindow.postMessage({ image, story }, '*');
+        postWindow.postMessage({ image:file, story }, '*');
       };
-    } else {
+    } else
       console.error("새 창을 열 수 없습니다. 팝업 차단기가 활성화되어 있을 수 있습니다.");
-    }
   };
 
   return (
