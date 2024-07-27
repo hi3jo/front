@@ -124,26 +124,29 @@ const PostWrite = styled.button`
 const CreatePost = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [imageFiles, setImageFiles] = useState<FileList | null>(null);
+//const [imageFiles, setImageFiles] = useState<FileList | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
 
+    //미리보기 파일
     if (imageFiles) {
       const urls = Array.from(imageFiles).map(file => URL.createObjectURL(file));
       setPreviewUrls(urls);
     }
 
     const handleReceiveMessage = (event: MessageEvent) => {
+      
       const { image, story } = event.data;
-      if (image) {
-        setPreviewUrls([image]); // 이미지 URL 설정
+      if (image instanceof File) {                          // 이미지가 File 객체인지 확인
+        setPreviewUrls(prevUrls => [...prevUrls, URL.createObjectURL(image)]);
+        setImageFiles(prevFiles => [...prevFiles, image]);
       }
-      if (story) {
-        setContent(story); // 사연 내용 설정
-      }
+
+      if (story) { setContent(story); }                       // 사연 내용 설정
     };
 
     // message 이벤트 리스너 등록
@@ -157,7 +160,10 @@ const CreatePost = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setImageFiles(e.target.files);
+      // setImageFiles(e.target.files);
+      const filesArray = Array.from(e.target.files);
+      setImageFiles(filesArray);
+      setPreviewUrls(filesArray.map(file => URL.createObjectURL(file)));
     }
   };
 
