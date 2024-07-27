@@ -130,10 +130,29 @@ const CreatePost = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+
     if (imageFiles) {
       const urls = Array.from(imageFiles).map(file => URL.createObjectURL(file));
       setPreviewUrls(urls);
     }
+
+    const handleReceiveMessage = (event: MessageEvent) => {
+      const { image, story } = event.data;
+      if (image) {
+        setPreviewUrls([image]); // 이미지 URL 설정
+      }
+      if (story) {
+        setContent(story); // 사연 내용 설정
+      }
+    };
+
+    // message 이벤트 리스너 등록
+    window.addEventListener('message', handleReceiveMessage);
+
+    // 컴포넌트 언마운트 시 이벤트 리스너 제거
+    return () => {
+      window.removeEventListener('message', handleReceiveMessage);
+    };
   }, [imageFiles]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

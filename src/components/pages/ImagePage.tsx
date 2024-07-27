@@ -235,6 +235,27 @@ const DownloadButton = styled.a`
   }
 `;
 
+// 스타일 컴포넌트
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center; /* 버튼을 가운데 정렬 */
+  margin-top: 10px; /* 이미지와 버튼 간격 조정 */
+`;
+
+const PostButton = styled.button`
+  padding: 5px 10px;
+  color: white;
+  background-color: #28a745; /* 다른 색상으로 구분 */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px; /* 버튼 간격 조정 */
+
+  &:hover {
+    background-color: #218838;
+  }
+`;
+
 const HistorySection = styled.div`
   margin-bottom: 2rem;
 `;
@@ -462,10 +483,13 @@ const ChatbotPage = () => {
   };
 
   const handleHistoryClick = async (historyId: number) => {
+
+    return;
     setSelectedHistoryId(historyId);
     setLoading(true);
 
     try {
+
       const token = localStorage.getItem('token');
       const response = await fetch(`http://localhost:8080/api/chatbot/history/questions?historyId=${historyId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -491,6 +515,20 @@ const ChatbotPage = () => {
   const handleImageClick = (image: string) => {
     setSelectedImage(image);
     setModalShow(true);
+  };
+
+  const handlePostClick =  async(image : string, story : string) => {
+    
+    const postWindow = window.open('http://localhost:3000/createpost', '_blank');
+
+    // postWindow가 null인지 확인
+    if (postWindow) {
+      postWindow.onload = () => {
+        postWindow.postMessage({ image, story }, '*');
+      };
+    } else {
+      console.error("새 창을 열 수 없습니다. 팝업 차단기가 활성화되어 있을 수 있습니다.");
+    }
   };
 
   return (
@@ -550,7 +588,10 @@ const ChatbotPage = () => {
                       alt="웹툰"
                       onClick={() => handleImageClick(chat.image)}
                     />
-                    <DownloadButton href={chat.image} download={`webtoon_${index + 1}.png`}>다운로드</DownloadButton>
+                    <ButtonContainer>
+                      <DownloadButton href={chat.image} download={`webtoon_${index + 1}.png`}>다운로드</DownloadButton>
+                      <PostButton onClick={() => handlePostClick(chat.image, chat.user)}>게시글 작성</PostButton>
+                    </ButtonContainer>
                   </WebtoonContainer>
                 </AiResponse>
               </div>
