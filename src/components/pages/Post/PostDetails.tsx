@@ -265,13 +265,18 @@ const PostDetail: React.FC = () => {
     }
   };
 
+  //게시글 삭제
   const handleDelete = async () => {
+
     try {
       const token = localStorage.getItem('token');
-      if (token) {
-        await axios.delete(`http://localhost:8080/api/posts/${id}`, {
+      if (token && post) {
+        
+        const imgUrls = post.imageUrls;
+        await axios.delete(`http://localhost:8080/api/posts/${id}?imageUrls=${imgUrls}`, {
           headers: {
-            'Authorization': `Bearer ${token}`
+              'Authorization': `Bearer ${token}`
+            , 'Content-Type' : 'application/json'
           }
         });
         navigate('/');
@@ -337,7 +342,7 @@ const PostDetail: React.FC = () => {
             <TableContent>{post.content}</TableContent>
             <ContentImg>
               {post.imageUrls && post.imageUrls.map((url, index) => (
-                <img key={index} src={`http://localhost:8080${url}`} alt={`게시글 이미지 ${post.title} - ${index + 1}`} />
+                <img key={index} src={`${url}`} alt={`게시글 이미지 ${post.title} - ${index + 1}`} />
               ))}
             </ContentImg>
             <ButtonGroup>
