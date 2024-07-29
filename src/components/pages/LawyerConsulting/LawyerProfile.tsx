@@ -74,6 +74,10 @@ const Value = styled.span`
   margin-right: 0.5rem;
 `;
 
+const Review = styled.div`
+  margin-top: 10rem;
+`
+
 const EditIcon = styled(FontAwesomeIcon)`
   color: #20b2aa;
   cursor: pointer;
@@ -363,14 +367,16 @@ const LawyerProfile: React.FC = () => {
               </>
             )}
           </ProfileField>
-          <div>
-            <h2>평균 평점</h2>
-            <StarRating rating={averageRating} />
-          </div>
-          <div>
-            <h2>리뷰 작성</h2>
-            <ReviewForm lawyerId={id!} />
-          </div>
+          <Review>
+            <div>
+              <h2>평균 평점</h2>
+              <StarRating rating={averageRating} />
+            </div>
+            <div>
+              <h2>리뷰 작성</h2>
+              <ReviewForm lawyerId={id!} />
+            </div>
+          </Review>
           <ConCon></ConCon>
         </LeftContainer>
         <RightContainer>
