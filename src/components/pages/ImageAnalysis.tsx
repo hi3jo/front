@@ -160,6 +160,13 @@ const PrintButton = styled.button`
   }
 `;
 
+interface UploadedImage {
+  src: string;
+  result: string;
+  date: string;
+  isPossible: boolean;
+}
+
 const formatDate = (dateString: string) => {
   const date = parseISO(dateString);
   if (isToday(date)) {
@@ -173,7 +180,7 @@ const ImageAnalysis = () => {
   const [file1, setFile1] = useState<File | null>(null);
   const [files2, setFiles2] = useState<File[]>([]);
   const [analysisResult1, setAnalysisResult1] = useState<{ answer: string, isPossible: boolean } | null>(null);
-  const [uploadedImages, setUploadedImages] = useState<{ src: string, result: string, date: string }[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<{ src: string, result: string, date: string, isPossible: boolean }[]>([]);
   const fileInputRef1 = useRef<HTMLInputElement | null>(null);
   const fileInputRef2 = useRef<HTMLInputElement | null>(null);
   const imageListRef = useRef<HTMLDivElement | null>(null);
@@ -221,7 +228,7 @@ const ImageAnalysis = () => {
 
       // 분석결과가 'normal'이 아닌 경우에만 업로드된 이미지 목록에 추가
       if (answer !== 'normal') {
-        setUploadedImages((prevImages) => [...prevImages, { src: URL.createObjectURL(file1), result: answer, date }]);
+        setUploadedImages((prevImages) => [...prevImages, { src: URL.createObjectURL(file1), result: answer, date, isPossible }]);
       }
     } catch (error: any) {
       if (error.response) {
@@ -257,34 +264,28 @@ const ImageAnalysis = () => {
     try {
         const formData = new FormData();
         for (const file of files2) {
-            formData.append('file', file); // 'files'를 'file'로 변경
-
-            const res = await axios.post('http://localhost:8080/api/textImgAna/upload', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-
-            console.log('Response:', res.data);  // 응답 데이터 확인
-
-            const date = new Date().toISOString();
-            const responseText = res.data;
-            const answerMatch = responseText.match(/분석결과: (.*?),/);
-            const isPossibleMatch = responseText.match(/증거채택여부: (.*?),/);
-
-            const answer = answerMatch ? answerMatch[1] : '';
-            const isPossible = isPossibleMatch ? isPossibleMatch[1] === 'True' : false;
-
-            // 분석결과가 ''이 아닌 경우에만 업로드된 이미지 목록에 추가
-            if (isPossible) {
-                const fileSrc = URL.createObjectURL(file); // 'file'을 루프 외부에서 사용하기 위해 상수로 할당
-                setUploadedImages((prevImages) => [
-                    ...prevImages,
-                    { src: fileSrc, result: answer, date },
-                ]);
-            }
+            formData.append('file', file);
         }
+
+        const res = await axios.post('http://localhost:8080/api/textImgAna/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+
+        console.log('Response:', res.data);
+
+        // 백엔드에서 받은 응답을 직접 사용
+        const newUploadedImages = res.data.map((item: any) => ({
+            src: URL.createObjectURL(files2.find(file => file.name === item.filename) || new Blob()),
+            result: item.answer,
+            date: item.datetime,
+            isPossible: item.isPossible
+        }));
+
+        setUploadedImages((prevImages) => [...prevImages, ...newUploadedImages]);
+
     } catch (error: any) {
         if (error.response) {
             console.error('Error response data:', error.response.data);
@@ -372,12 +373,16 @@ const ImageAnalysis = () => {
             <strong>이미지</strong>
             <strong>결과</strong>
             <strong>날짜</strong>
+            <strong>증거 채택 여부</strong>
           </ImageListItem>
           {uploadedImages.map((img, index) => (
             <ImageListItem key={index}>
               <ImagePreview src={img.src} alt={`Uploaded ${index}`} />
-              <ResultContent>{img.result}</ResultContent>
+              <ResultContent style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{img.result}</ResultContent>
               <DateContent>{formatDate(img.date)}</DateContent>
+              <EvidenceStatus $isPossible={img.isPossible}>
+                {img.isPossible ? 'True' : 'False'}
+              </EvidenceStatus>
             </ImageListItem>
           ))}
         </ImageList>
