@@ -16,6 +16,7 @@ interface Post {
   dateCreate: string;
   viewCount: number;
   likeCount: number;
+  imageUrls?: string[];
   commentCount?: number;
 }
 
@@ -84,7 +85,7 @@ const TableRow = styled.div`
   flex-direction: column;
   padding: 15px 0;
   text-align: left;
-  height: 9rem;
+  height: 10rem;
   }
 `;
 
@@ -107,10 +108,22 @@ const TableLike = styled.div`
 `
 
 const TableContent = styled.div`
+  display:flex;
+  flex-direction: row;
   color: #555555;
   font-size: 0.9rem;
-  padding: 0.8rem 0.3rem;
-  height: 3rem;
+  padding: 1rem 0.3rem;
+  height: 5rem;
+`
+
+const PostImg = styled.div`
+  right: 0;
+  img {
+    width:100px;
+    height: 100px;
+    display: block;
+    margin-bottom: 1rem;
+  }
 `
 
 const TableNick = styled.div`
@@ -351,7 +364,12 @@ const PostList: React.FC = () => {
                   <TableLike>{"\u2764\uFE0F"}좋아요: {post.likeCount}</TableLike>
                 </TableHeader>
                 <TableContent>
-                  <Link to={`/posts/${post.id}`}>{post.content.length > 100 ? `${post.content.substring(0, 100)}...` : post.content}</Link>
+                  <Link style={{ width: '700px' }} to={`/posts/${post.id}`}>{post.content.length > 150 ? `${post.content.substring(0, 150)}...` : post.content}</Link>
+                  <PostImg>
+                    {post.imageUrls && post.imageUrls.length > 0 && (
+                      <img src={`${post.imageUrls[0]}`} alt={`게시글 이미지 ${post.title} - 1`} />
+                    )}
+                  </PostImg>
                 </TableContent>
                 <TableNick>{post.user.nickname} | {formatDate(post.dateCreate)} 조회수 : {post.viewCount}</TableNick>
               </TableRow>

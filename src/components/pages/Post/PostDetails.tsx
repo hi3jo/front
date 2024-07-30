@@ -106,6 +106,7 @@ const TableLike = styled.div`
 const TableContent = styled.div`
   color: #555;
   font-size: 0.9rem;
+  height: 10rem;
 `;
 
 const ContentImg = styled.div`
