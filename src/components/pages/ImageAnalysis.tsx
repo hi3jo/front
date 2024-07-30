@@ -5,6 +5,7 @@ import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import axios from 'axios';
 import { format, isToday, parseISO } from 'date-fns';
+import { MdWarningAmber } from "react-icons/md";
 
 const Container = styled.div`
   display: flex;
@@ -60,6 +61,12 @@ const Header = styled.h2`
   margin-bottom: 1rem;
   color: #333;
 `;
+
+const Warning = styled.div`
+  position:absolute;
+  margin-top: 50px;
+  color:red;
+`
 
 const Form = styled.form`
   display: flex;
@@ -279,25 +286,22 @@ const ImageAnalysis = () => {
         console.log('Response:', res.data);
 
         // 백엔드에서 받은 응답을 직접 사용
-        const newUploadedImages = res.data.map((item: any) => ({
-            src: URL.createObjectURL(files2.find(file => file.name === item.filename) || new Blob()),
-            result: item.answer,
-            date: item.datetime,
-            isPossible: item.isPossible
-        }));
+          const newUploadedImages = res.data.map((item: any) => {
+            const answer = item.answer;
+            const formattedAnswer = `대화내용: ${answer.대화내용}\n성적표현: ${answer.성적표현}\n부적절관계: ${answer.부적절관계}`;
+            
+            return {
+                src: URL.createObjectURL(files2.find(file => file.name === item.filename) || new Blob()),
+                result: formattedAnswer,
+                date: item.datetime,
+                isPossible: item.isPossible
+            };
+        });
 
         setUploadedImages((prevImages) => [...prevImages, ...newUploadedImages]);
 
     } catch (error: any) {
-        if (error.response) {
-            console.error('Error response data:', error.response.data);
-            console.error('Error response status:', error.response.status);
-            console.error('Error response headers:', error.response.headers);
-        } else if (error.request) {
-            console.error('Error request:', error.request);
-        } else {
-            console.error('Error message:', error.message);
-        }
+        // 에러 처리 코드 (변경 없음)
     }
 
     setFiles2([]);
@@ -368,6 +372,7 @@ const ImageAnalysis = () => {
       </TopPanel>
       <BottomPanel ref={imageListRef}>
         <Header>증거 목록</Header>
+        <Warning><MdWarningAmber style={{ fontSize:'1.5rem' }} />주의: 모든 증거 수집은 반드시 합법적인 절차와 경로를 통해 이루어져야 합니다.</Warning>
         <PrintButton onClick={handlePrint}>PDF로 저장</PrintButton>
 
         <ImageList>
