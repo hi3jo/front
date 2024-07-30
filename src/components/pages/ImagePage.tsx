@@ -298,6 +298,15 @@ const HistoryItemStyled = styled.div`
   }
 `;
 
+const fetchWithTimeout = (url, options, timeout = 180000) => {
+  return Promise.race([
+    fetch(url, options),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Request timed out')), timeout)
+    )
+  ]);
+};
+
 const apiUrl   = process.env.REACT_APP_API_URL;
 const frontUrl = process.env.REACT_APP_FRONT_URL;
 const backUrl  = process.env.REACT_APP_BACK_URL;
@@ -402,8 +411,9 @@ const ChatbotPage = () => {
     //2.웹툰 생성
     try {
       
-      const res = await fetch(
-        `${apiUrl}/api/generate-webtoon`,
+      //const res = await fetch(
+        //`${apiUrl}/api/generate-webtoon`,
+      const response = await fetchWithTimeout(`${apiUrl}/api/generate-webtoon`,
         {
             method: 'POST'
           , headers: { 'Content-Type': 'application/json' }
