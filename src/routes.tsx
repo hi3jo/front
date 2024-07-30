@@ -16,6 +16,7 @@ import PopularPosts from './components/pages/Post/PopularPosts';
 import ImageAnalysis from './components/pages/ImageAnalysis';
 import LawyerConsultationPage from './components/pages/LawyerConsulting/LawyerConsultationPage';
 import LawyerProfile from './components/pages/LawyerConsulting/LawyerProfile';
+import Caselowmanagement from './components/pages/Caselowmanagement';
 
 
 const AppRoutes = () => {
@@ -40,6 +41,7 @@ const AppRoutes = () => {
       <Route path="/imageAnalysis" element={<ImageAnalysis />} />
       <Route path="/lawyer/consultation-request" element={<LawyerConsultationPage />} />
       <Route path="/lawyer/lawyerprofile/:id" element={<LawyerProfile />} />
+      <Route path='caselowmanagement' element={<Caselowmanagement />} />
     </Routes>
   );
 };

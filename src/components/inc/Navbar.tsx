@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NavLink as RouterNavLink, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../services/auth';
+import { FaEllipsisV } from 'react-icons/fa';
 
 const NavbarContainer = styled.nav`
   background: #fff;
@@ -30,7 +31,6 @@ const CustomNavLink = styled(RouterNavLink)`
   font-size: 1.8rem;
   font-weight: bold;
   margin-left: 1rem;
-
 `;
 
 const NavLinks = styled.div`
@@ -47,7 +47,7 @@ const NavLinks = styled.div`
 `;
 
 const StyledButton = styled.button`
-  display:flex;
+  display: flex;
   text-decoration: none;
   color: inherit;
   padding: 0.8rem;
@@ -89,8 +89,60 @@ const AuthLinks = styled.div`
   cursor: pointer;
 `;
 
+const MoreOptions = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const MoreButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+`;
+
+const DropdownMenu = styled.div<{ $show: boolean }>`
+  display: ${props => (props.$show ? 'block' : 'none')};
+  position: absolute;
+  right: 0;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+`;
+
+const DropdownItem = styled(Link)`
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  font-size: 1rem;
+
+  &:hover {
+    background-color: #f1f1f1;
+  }
+`;
+
 const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuth();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      setShowDropdown(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <NavbarContainer>
@@ -113,6 +165,14 @@ const Navbar = () => {
         ) : (
           <Link to="/login">로그인/가입</Link>
         )}
+        <MoreOptions ref={dropdownRef}>
+          <MoreButton onClick={() => setShowDropdown(!showDropdown)}>
+            <FaEllipsisV />
+          </MoreButton>
+          <DropdownMenu $show={showDropdown}>
+            <DropdownItem to="/caselowmanagement">판례관리</DropdownItem>
+          </DropdownMenu>
+        </MoreOptions>
       </AuthLinks>
     </NavbarContainer>
   );
