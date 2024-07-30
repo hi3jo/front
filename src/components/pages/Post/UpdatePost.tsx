@@ -64,6 +64,8 @@ const DeleteButton = styled.button`
   cursor: pointer;
 `;
 
+const backUrl = process.env.REACT_APP_BACK_URL;
+
 const UpdatePost: React.FC = () => {
   const [post, setPost] = useState<Post | null>(null);
   const { id } = useParams<{ id: string }>();
@@ -92,7 +94,7 @@ const UpdatePost: React.FC = () => {
 
   const fetchPost = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/posts/${id}`);
+      const response = await axios.get(`${backUrl}/api/posts/${id}`);
       setPost(response.data);
       setTitle(response.data.title);
       setContent(response.data.content);
@@ -105,7 +107,7 @@ const UpdatePost: React.FC = () => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const response = await axios.get('http://localhost:8080/api/user/me', {
+        const response = await axios.get(`${backUrl}/api/user/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -143,7 +145,7 @@ const UpdatePost: React.FC = () => {
         }); */
 
       // 업데이트 요청
-      await axios.put(`http://localhost:8080/api/posts/${id}`, formData, {
+      await axios.put(`${backUrl}/api/posts/${id}`, formData, {
         headers: {
               'Authorization' : `Bearer ${token}`
             , 'Content-Type'  : 'multipart/form-data'

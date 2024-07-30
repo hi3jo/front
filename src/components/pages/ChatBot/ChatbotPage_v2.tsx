@@ -16,6 +16,8 @@ import {
   IconButton,
 } from './ChatbotStyles'; // styles.js 파일을 가져옴
 
+const apiUrl = process.env.REACT_APP_API_URL;
+
 // props 타입 정의
 interface ChatbotPageProps {
   chatHistory: { user: string, ai: string }[];
@@ -39,7 +41,7 @@ const ChatbotPage_v2: React.FC<ChatbotPageProps> = ({ chatHistory, setChatHistor
 
     try {
       // API 호출하여 질문에 대한 응답 받기
-      const res = await fetch(`http://localhost:8000/api/query-v3/?query_text=${encodeURIComponent(question)}`);
+      const res = await fetch(`${apiUrl}/api/query-v3/?query_text=${encodeURIComponent(question)}`);
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }

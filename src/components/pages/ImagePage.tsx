@@ -297,6 +297,11 @@ const HistoryItemStyled = styled.div`
     opacity: 0;
   }
 `;
+
+const apiUrl   = process.env.REACT_APP_API_URL;
+const frontUrl = process.env.REACT_APP_FRONT_URL;
+const backUrl  = process.env.REACT_APP_BACK_URL;
+
 const ChatbotPage = () => {
 //const [story, setStory] = useState('이혼을 원하는 사유를 4개의 단락으로 나눠주세요 :\n\n1. 초기 문제\n\n2. 갈등의 심화\n\n3. 결정적인 사건\n\n4. 결론 및 감정');
   const [story, setStory] = useState('');
@@ -318,7 +323,7 @@ const ChatbotPage = () => {
     if (userId) {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch(`http://localhost:8080/api/webtoon/story?userId=${userId}`, {
+        const response = await fetch(`${backUrl}/api/webtoon/story?userId=${userId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) {
@@ -369,7 +374,7 @@ const ChatbotPage = () => {
     if (userId && userId !== '') {
       try {
         
-        const response = await fetch('http://localhost:8080/api/webtoon/stories', {
+        const response = await fetch(`${backUrl}/api/webtoon/stories`, {
               method: 'POST'
             , headers: {
                 'Content-Type' : 'application/json',
@@ -398,7 +403,7 @@ const ChatbotPage = () => {
     try {
       
       const res = await fetch(
-        'http://localhost:8000/api/generate-webtoon',
+        `${apiUrl}/api/generate-webtoon`,
         {
             method: 'POST'
           , headers: { 'Content-Type': 'application/json' }
@@ -523,7 +528,7 @@ const ChatbotPage = () => {
     // Blob을 사용하여 File 객체 생성
     const file = new File([blob], `webtoon_${story}.png`, { type: blob.type });
 
-    const postWindow = window.open('http://localhost:3000/createpost', '_blank');
+    const postWindow = window.open(`${frontUrl}/createpost`, '_blank');
 
     // postWindow가 null인지 확인
     if (postWindow) {

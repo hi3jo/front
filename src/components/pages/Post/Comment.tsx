@@ -92,6 +92,8 @@ const CommentActionButton = styled.button`
   }
 `;
 
+const backUrl = process.env.REACT_APP_BACK_URL;
+
 const EditCommentForm = styled.div`
   display: flex;
   flex-direction: column;
@@ -107,7 +109,7 @@ const Comments: React.FC<CommentProps> = ({ postId, currentUser }) => {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/comments/posts/${postId}`);
+        const response = await axios.get(`${backUrl}/api/comments/posts/${postId}`);
         const sortedComments = response.data.sort((a: Comment, b: Comment) => new Date(b.dateCreate).getTime() - new Date(a.dateCreate).getTime());
         setComments(sortedComments);
       } catch (error) {
@@ -127,7 +129,7 @@ const Comments: React.FC<CommentProps> = ({ postId, currentUser }) => {
 
     try {
       const response = await axios.post(
-        `http://localhost:8080/api/comments/posts/${postId}`, 
+        `${backUrl}/api/comments/posts/${postId}`, 
         { content: newComment }, 
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
@@ -146,7 +148,7 @@ const Comments: React.FC<CommentProps> = ({ postId, currentUser }) => {
     }
 
     try {
-      await axios.delete(`http://localhost:8080/api/comments/${commentId}`, {
+      await axios.delete(`${backUrl}/api/comments/${commentId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setComments(comments.filter(comment => comment.id !== commentId));
@@ -164,7 +166,7 @@ const Comments: React.FC<CommentProps> = ({ postId, currentUser }) => {
 
     try {
       const response = await axios.put(
-        `http://localhost:8080/api/comments/${commentId}`, 
+        `${backUrl}/api/comments/${commentId}`, 
         { content: editCommentContent }, 
         { headers: { 'Authorization': `Bearer ${token}` } }
       );

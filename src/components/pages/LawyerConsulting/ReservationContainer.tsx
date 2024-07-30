@@ -199,6 +199,8 @@ const NextButton2 = styled(NextButton)`
   background-color: #ff69b4;
 `;
 
+const backUrl = process.env.REACT_APP_BACK_URL;
+
 interface ReservationContainerProps {
   phoneConsultationPrice: number;
   inPersonConsultationPrice: number;
@@ -233,7 +235,7 @@ const ReservationContainer: React.FC<ReservationContainerProps> = ({ phoneConsul
       if (user) {
         const token = localStorage.getItem('token');
         try {
-          const response = await axios.get(`http://localhost:8080/api/lawyer/${id}/available-times`, {
+          const response = await axios.get(`${backUrl}/api/lawyer/${id}/available-times`, {
             headers: {
               Authorization: `Bearer ${token}`
             }
@@ -326,7 +328,7 @@ const ReservationContainer: React.FC<ReservationContainerProps> = ({ phoneConsul
           availableTimeId: selectedAvailableTime.id
         };
 
-        await axios.post('http://localhost:8080/api/reservation', data, {
+        await axios.post(`${backUrl}/api/reservation`, data, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'

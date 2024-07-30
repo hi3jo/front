@@ -224,6 +224,7 @@ const PostCon2 = styled.div`
   height: 50rem;
   border: 1px solid #999;
 `
+const backUrl = process.env.REACT_APP_BACK_URL;
 
 const PostList: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -247,7 +248,7 @@ const PostList: React.FC = () => {
         .map(([key, value]) => `${key}=${value}`)
         .join('&');
 
-      const response = await axios.get<PostsResponse>(`http://localhost:8080/api/posts/pages?${queryString}`);
+      const response = await axios.get<PostsResponse>(`${backUrl}/api/posts/pages?${queryString}`);
       setPosts(response.data.posts);
       setTotalPages(response.data.totalPages);
 
@@ -269,7 +270,7 @@ const PostList: React.FC = () => {
   const fetchBestPosts = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get<Post[]>('http://localhost:8080/api/posts/best', {
+      const response = await axios.get<Post[]>(`${backUrl}/api/posts/best`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -188,6 +188,8 @@ const NextButton2 = styled(NextButton)`
   background-color: #ff69b4;
 `;
 
+const backUrl = process.env.REACT_APP_BACK_URL;
+
 interface AvailableTimeContainerProps {
   phoneConsultationPrice: number;
   inPersonConsultationPrice: number;
@@ -214,7 +216,7 @@ const AvailableTimeContainer: React.FC<AvailableTimeContainerProps> = ({ phoneCo
       if (user) {
         const token = localStorage.getItem('token');
         try {
-          const response = await axios.get(`http://localhost:8080/api/lawyer/available-times`, {
+          const response = await axios.get(`${backUrl}/api/lawyer/available-times`, {
             headers: {
               Authorization: `Bearer ${token}`
             }
@@ -271,7 +273,7 @@ const AvailableTimeContainer: React.FC<AvailableTimeContainerProps> = ({ phoneCo
           };
   
           if (existingTimes.some(time => time.dateTime === `${selectedDate} ${startTime}` && time.type === consultationType)) {
-            await axios.delete('http://localhost:8080/api/lawyer/available-time', {
+            await axios.delete(`${backUrl}/api/lawyer/available-time`, {
               data: data,
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -279,7 +281,7 @@ const AvailableTimeContainer: React.FC<AvailableTimeContainerProps> = ({ phoneCo
               }
             });
           } else {
-            await axios.post('http://localhost:8080/api/lawyer/available-time', data, {
+            await axios.post(`${backUrl}/api/lawyer/available-time`, data, {
               headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json'

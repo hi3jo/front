@@ -62,6 +62,8 @@ const Button = styled.button`
     background-color: #008080;
 `;
 
+const backUrl  = process.env.REACT_APP_BACK_URL;
+
 const RegisterUser = () => {
   const [formData, setFormData] = useState({
     userid: '',
@@ -103,7 +105,7 @@ const RegisterUser = () => {
       return;
     }
 
-    axios.post('http://localhost:8080/api/auth/register', formData)
+    axios.post(`${backUrl}/api/auth/register`, formData)
       .then(response => {
         alert('회원가입 성공!');
         window.location.href = '/login';
