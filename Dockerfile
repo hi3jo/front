@@ -11,7 +11,7 @@ ADD . /app/
 RUN npm install
 
 # Node.js 메모리 제한을 증가시킵니다.
-ENV NODE_OPTIONS="--max_old_space_size=4096"
+ENV NODE_OPTIONS="--max_old_space_size=1096"
 
 # 빌드 실행
 RUN npm run build
