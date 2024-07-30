@@ -1,32 +1,21 @@
-# 1. Build 단계 - Node.js를 사용하여 리액트 앱을 빌드합니다.
-FROM node:14.19.0 AS build
-
-# 작업 디렉토리 설정
-WORKDIR /app
-
-# 프로젝트 파일 추가
-ADD . /app/
-
-# 종속성 설치
-RUN npm install
-
-# Node.js 메모리 제한을 증가시킵니다.
-ENV NODE_OPTIONS="--max_old_space_size=1096"
-
-# 빌드 실행
-RUN npm run build
-
-# 2. Serve 단계 - 경량 웹 서버로 정적 파일 제공
+# 1. 베이스 이미지 설정정정정
 FROM node:14.19.0
 
-# serve 패키지 글로벌 설치
-RUN npm install -g serve
+# 2. 작업 디렉토리 생성 및 설정
+RUN mkdir -p /app
+WORKDIR /app
 
-# 빌드된 파일들을 복사
-COPY --from=build /app/build /app/build
+# 3. 프로젝트 파일 추가
+ADD . /app/
 
-# 포트 노출
+# 4. 종속성 설치
+RUN npm install
+
+# 5. 포트 노출
+ENV HOST=0.0.0.0
+ENV PORT=3000
+
 EXPOSE 3000
 
-# 애플리케이션 실행
-CMD ["serve", "-s", "build", "-l", "3000"]
+# 6. 애플리케이션 실행
+CMD ["npm", "start"]
