@@ -167,6 +167,8 @@ interface UploadedImage {
   isPossible: boolean;
 }
 
+const backUrl = process.env.REACT_APP_BACK_URL;
+
 const formatDate = (dateString: string) => {
   const date = parseISO(dateString);
   if (isToday(date)) {
@@ -207,7 +209,7 @@ const ImageAnalysis = () => {
         console.error('No token found');
         return;
       }
-      const res = await axios.post('http://localhost:8080/api/imageAnalysis/upload', formData, {
+      const res = await axios.post(`${backUrl}/api/imageAnalysis/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`,
@@ -267,7 +269,7 @@ const ImageAnalysis = () => {
             formData.append('file', file);
         }
 
-        const res = await axios.post('http://localhost:8080/api/textImgAna/upload', formData, {
+        const res = await axios.post(`${backUrl}/api/textImgAna/upload`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 'Authorization': `Bearer ${token}`,

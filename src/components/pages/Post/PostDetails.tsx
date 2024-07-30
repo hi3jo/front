@@ -179,6 +179,8 @@ const PostWrite = styled.button`
   }
 `;
 
+const backUrl = process.env.REACT_APP_BACK_URL;
+
 const PostDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<Post | null>(null);
@@ -196,25 +198,25 @@ const PostDetail: React.FC = () => {
 
   const fetchPostData = async () => {
     try {
-      const postResponse = await axios.get(`http://localhost:8080/api/posts/${id}`);
+      const postResponse = await axios.get(`${backUrl}/api/posts/${id}`);
       setPost(postResponse.data);
 
       const token = localStorage.getItem('token');
-      await axios.post(`http://localhost:8080/api/posts/${id}/increment-views`, {}, {
+      await axios.post(`${backUrl}/api/posts/${id}/increment-views`, {}, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
       if (token) {
-        const userResponse = await axios.get('http://localhost:8080/api/user/me', {
+        const userResponse = await axios.get(`${backUrl}/api/user/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
         setCurrentUser(userResponse.data.userid);
 
-        const likedResponse = await axios.get(`http://localhost:8080/api/posts/${id}/like-status`, {
+        const likedResponse = await axios.get(`${backUrl}/api/posts/${id}/like-status`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -229,7 +231,7 @@ const PostDetail: React.FC = () => {
   const fetchBestPosts = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get<Post[]>('http://localhost:8080/api/posts/best', {
+      const response = await axios.get<Post[]>(`${backUrl}/api/posts/best`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -245,14 +247,14 @@ const PostDetail: React.FC = () => {
       const token = localStorage.getItem('token');
       if (token && post) {
         if (liked) {
-          await axios.delete(`http://localhost:8080/api/posts/${id}/like`, {
+          await axios.delete(`${backUrl}/api/posts/${id}/like`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
           });
           setPost({ ...post, likeCount: post.likeCount - 1 });
         } else {
-          await axios.post(`http://localhost:8080/api/posts/${id}/like`, {}, {
+          await axios.post(`${backUrl}/api/posts/${id}/like`, {}, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -274,7 +276,7 @@ const PostDetail: React.FC = () => {
       if (token && post) {
         
         const imgUrls = post.imageUrls;
-        await axios.delete(`http://localhost:8080/api/posts/${id}?imageUrls=${imgUrls}`, {
+        await axios.delete(`${backUrl}/api/posts/${id}?imageUrls=${imgUrls}`, {
           headers: {
               'Authorization': `Bearer ${token}`
             , 'Content-Type' : 'application/json'

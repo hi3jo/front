@@ -99,6 +99,8 @@ const Select = styled.select`
   border-radius: 4px;
 `;
 
+const backUrl  = process.env.REACT_APP_BACK_URL;
+
 const PopularPosts: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [pageList, setPageList] = useState<number[]>([]);
@@ -121,7 +123,7 @@ const PopularPosts: React.FC = () => {
         .map(([key, value]) => `${key}=${value}`)
         .join('&');
 
-      const response = await axios.get<PostsResponse>(`http://localhost:8080/api/posts/popular?${queryString}`);
+      const response = await axios.get<PostsResponse>(`${backUrl}/api/posts/popular?${queryString}`);
       setPosts(response.data.posts);
       setTotalPages(response.data.totalPages);
       setTotalItems(response.data.totalItems);

@@ -178,6 +178,9 @@ const NewHistoryButton = styled.button`
   }
 `;
 
+const apiUrl  = process.env.REACT_APP_API_URL;
+const backUrl = process.env.REACT_APP_BACK_URL;
+
 const ChatbotPage: React.FC = () => {
   const [chatBot, setChatBot] = useState('');
   const [chatHistory, setChatHistory] = useState<{ user: string, ai: string }[]>([]);
@@ -198,7 +201,7 @@ const ChatbotPage: React.FC = () => {
     if (userId) {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch(`http://localhost:8080/api/chatbot/history?userId=${userId}`, {
+        const response = await fetch(`${backUrl}/api/chatbot/history?userId=${userId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) {
@@ -275,7 +278,7 @@ const ChatbotPage: React.FC = () => {
 
     if (isHistoryIdNull(currentHistoryId)) {
       try {
-        const response = await fetch('http://localhost:8080/api/chatbot/create-history', {
+        const response = await fetch(`${backUrl}/api/chatbot/create-history`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -297,7 +300,7 @@ const ChatbotPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(`http://localhost:8000/api/query-v3/?query_text=${encodeURIComponent(chatBot)}`);
+      const res = await fetch(`${apiUrl}/api/query-v3/?query_text=${encodeURIComponent(chatBot)}`);
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -340,7 +343,7 @@ const ChatbotPage: React.FC = () => {
     setChatBot('');
 
     try {
-      const res = await fetch(`http://localhost:8000/api/query-v3/?query_text=${encodeURIComponent(chatBot)}`);
+      const res = await fetch(`${apiUrl}/api/query-v3/?query_text=${encodeURIComponent(chatBot)}`);
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -368,7 +371,7 @@ const ChatbotPage: React.FC = () => {
 
      // 질문 저장
      try {
-      await fetch('http://localhost:8080/api/chatbot/ask', {
+      await fetch(`${backUrl}/api/chatbot/ask`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
@@ -383,7 +386,7 @@ const ChatbotPage: React.FC = () => {
     // 답변 저장
     try {
       // fetch 함수 사용하여 서버에 HTTP POST 요청을 보냅니다.
-      const response = await fetch('http://localhost:8080/api/chatbot/answer', {
+      const response = await fetch(`${backUrl}/api/chatbot/answer`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json', // 전송하는 데이터의 타입은 JSON입니다.
@@ -423,7 +426,7 @@ const ChatbotPage: React.FC = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8080/api/chatbot/history/questions?historyId=${historyId}`, {
+      const response = await fetch(`${backUrl}/api/chatbot/history/questions?historyId=${historyId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) {

@@ -121,6 +121,9 @@ const PostWrite = styled.button`
   }
 `;
 
+const apiUrl  = process.env.REACT_APP_API_URL;
+const backUrl = process.env.REACT_APP_BACK_URL;
+
 const CreatePost = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -185,7 +188,7 @@ const CreatePost = () => {
         const formData = new FormData();
         formData.append('file', imageFiles[i]);
         try {
-          const response = await axios.post('http://localhost:8080/api/uploads', formData, {
+          const response = await axios.post(`${backUrl}/api/uploads`, formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
             }
@@ -200,7 +203,7 @@ const CreatePost = () => {
     const post = { title, content, imageUrls };
 
     try {
-      await axios.post('http://localhost:8080/api/posts', post, {
+      await axios.post(`${backUrl}/api/posts`, post, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

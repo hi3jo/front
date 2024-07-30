@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, ReactNode, FC, useEffect } from 'react';
 import axios from 'axios';
 
+const backUrl = process.env.REACT_APP_BACK_URL;
+
 interface AuthContextType {
   isAuthenticated: boolean;
   user: { id: string; nickname: string; role: string } | null;
@@ -39,9 +41,9 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (credentials: { userid: string; password: string }) => {
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', credentials);
+      const response = await axios.post(`${backUrl}/api/auth/login`, credentials);
       if (response.status === 200 && response.data.token) {
-        const userResponse = await axios.get('http://localhost:8080/api/user/me', {
+        const userResponse = await axios.get(`${backUrl}/api/user/me`, {
           headers: {
             'Authorization': `Bearer ${response.data.token}`
           }

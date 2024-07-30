@@ -144,6 +144,8 @@ const PostCon2 = styled.div`
   border: 1px solid #999;
 `;
 
+const backUrl = process.env.REACT_APP_BACK_URL;
+
 const LawyerConsultationPage: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
   const [lawyerCount, setLawyerCount] = useState(0);
@@ -154,10 +156,10 @@ const LawyerConsultationPage: React.FC = () => {
   useEffect(() => {
     const fetchLawyerData = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/lawyer/count');
+        const response = await axios.get(`${backUrl}/api/lawyer/count`);
         setLawyerCount(response.data);
 
-        const lawyerResponse = await axios.get('http://localhost:8080/api/lawyer/available-lawyers');
+        const lawyerResponse = await axios.get(`${backUrl}/api/lawyer/available-lawyers`);
         const uniqueLawyers = lawyerResponse.data.reduce((acc: any, current: any) => {
           if (!acc.find((lawyer: any) => lawyer.id === current.id)) {
             acc.push(current);
@@ -168,7 +170,7 @@ const LawyerConsultationPage: React.FC = () => {
 
         uniqueLawyers.forEach(async (lawyer: { id: string }) => {
           try {
-            const profileResponse = await axios.get(`http://localhost:8080/api/lawyer/profile/${lawyer.id}`);
+            const profileResponse = await axios.get(`${backUrl}/api/lawyer/profile/${lawyer.id}`);
             setProfiles((prevProfiles) => ({
               ...prevProfiles,
               [lawyer.id]: profileResponse.data,

@@ -182,6 +182,8 @@ const MobileView = styled.div`
   }
 `;
 
+const backUrl = process.env.REACT_APP_BACK_URL;
+
 const LawyerProfile: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
   const { id } = useParams<{ id: string }>();
@@ -211,7 +213,7 @@ const LawyerProfile: React.FC = () => {
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
       try {
-        const response = await axios.get(`http://localhost:8080/api/lawyer/profile/${id}`, {
+        const response = await axios.get(`${backUrl}/api/lawyer/profile/${id}`, {
           headers,
         });
         setProfile(response.data);
@@ -232,7 +234,7 @@ const LawyerProfile: React.FC = () => {
       const token = localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       try {
-        const response = await axios.get(`http://localhost:8080/api/reviews/lawyer/${id}/average`, {
+        const response = await axios.get(`${backUrl}/api/reviews/lawyer/${id}/average`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -265,13 +267,13 @@ const LawyerProfile: React.FC = () => {
       try {
         let response;
         if (profile && Object.keys(profile).length > 0) {
-          response = await axios.put(`http://localhost:8080/api/lawyer/profile/${id}`, updatedProfile, {
+          response = await axios.put(`${backUrl}/api/lawyer/profile/${id}`, updatedProfile, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
         } else {
-          response = await axios.post('http://localhost:8080/api/lawyer/profile', updatedProfile, {
+          response = await axios.post(`${backUrl}/api/lawyer/profile`, updatedProfile, {
             headers: {
               Authorization: `Bearer ${token}`,
             },

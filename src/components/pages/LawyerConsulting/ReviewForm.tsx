@@ -14,6 +14,8 @@ interface ReviewDTO {
   userNickname: string;
 }
 
+const backUrl  = process.env.REACT_APP_BACK_URL;
+
 const ReviewForm: React.FC<ReviewFormProps> = ({ lawyerId }) => {
   const [comment, setComment] = useState('');
   const [rating, setRating] = useState(0);
@@ -24,7 +26,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ lawyerId }) => {
   const fetchReviews = async () => {
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
     try {
-      const response = await axios.get(`http://localhost:8080/api/reviews/lawyer/${lawyerId}`, { headers });
+      const response = await axios.get(`${backUrl}/api/reviews/lawyer/${lawyerId}`, { headers });
       setReviews(response.data);
     } catch (error) {
       console.error('리뷰 목록 가져오기 실패', error);
@@ -53,7 +55,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ lawyerId }) => {
       };
 
       await axios.post(
-        'http://localhost:8080/api/reviews',
+        `${backUrl}/api/reviews`,
         reviewData,
         {
           headers: {
