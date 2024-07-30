@@ -350,9 +350,9 @@ const Slider = () => {
     {
       content: (
         <StyledContent>
-          3
+          AI 이혼 법률 비서 갈림길봇에게
           <Spacer />
-          3
+          가입 후 빠르게 질문해보세요.
         </StyledContent>
       ),
       contentStyles: css`
@@ -371,9 +371,9 @@ const Slider = () => {
       `,
       content2: (
         <StyledContent>
-          3
+          어렵고 복잡한 법률 정보,
           <Spacer />
-          3
+          대화하듯 질문하고 신속하게 답변 받아보세요.
         </StyledContent>
       ),
       contentStyles2: css`
@@ -486,7 +486,7 @@ const Slider = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       goToNextSlide();
-    }, 40000);
+    }, 4000);
 
     return () => clearInterval(interval);
   });

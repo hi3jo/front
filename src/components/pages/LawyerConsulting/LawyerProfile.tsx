@@ -233,7 +233,9 @@ const LawyerProfile: React.FC = () => {
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       try {
         const response = await axios.get(`http://localhost:8080/api/reviews/lawyer/${id}/average`, {
-          headers,
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
         setAverageRating(response.data);
       } catch (error) {
